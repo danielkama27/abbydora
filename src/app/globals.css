@@ -6,6 +6,30 @@
 
 :root {
   --radius: 0.5rem;
+
+  --abby-black: #0a0a0a;
+  --abby-black-soft: #1a1a1a;
+  --abby-black-card: #242424;
+  --abby-off-white: #f5f5f0;
+  --abby-cream: #fafaf8;
+  --abby-stone: #e8e8e3;
+  --abby-gold: #c9a96e;
+  --abby-gold-light: #d4b87a;
+}
+
+.dark {
+  --abby-black: #f5f5f0;
+  --abby-black-soft: #e8e8e3;
+  --abby-black-card: #1a1a1a;
+  --abby-off-white: #0a0a0a;
+  --abby-cream: #121212;
+  --abby-stone: #2a2a2a;
+  --abby-gold: #d4b87a;
+  --abby-gold-light: #e0c68f;
+}
+
+.dark body {
+  color-scheme: dark;
 }
 
 @layer base {

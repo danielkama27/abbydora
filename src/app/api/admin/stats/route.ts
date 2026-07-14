@@ -10,7 +10,7 @@ export async function GET() {
     prisma.order.findMany({
       take: 5,
       orderBy: { createdAt: "desc" },
-      include: { items: { include: { product: true } } },
+      include: { items: { include: { product: true } }, user: true },
     }),
     prisma.product.findMany({ orderBy: { createdAt: "desc" }, take: 5 }),
   ]);

@@ -10,6 +10,7 @@ import {
   ShoppingCart,
   Tag,
   Image,
+  Mail,
   LogOut,
 } from "lucide-react";
 
@@ -19,11 +20,10 @@ import { toast } from "sonner";
 const navItems = [
   { icon: LayoutDashboard, label: "Dashboard", href: "/admin" },
   { icon: ShoppingBag, label: "Products", href: "/admin/products" },
-  { icon: Users, label: "Customers", href: "/admin/customers" },
+  { icon: Users, label: "Customers", href: "/admin/users" },
   { icon: Star, label: "Reviews", href: "/admin/reviews" },
   { icon: ShoppingCart, label: "Orders", href: "/admin/orders" },
-  { icon: Tag, label: "Discounts", href: "/admin/discounts" },
-  { icon: Image, label: "Media", href: "/admin/media" },
+  { icon: Mail, label: "Messages", href: "/admin/messages" },
 ];
 
 export function AdminSidebar() {

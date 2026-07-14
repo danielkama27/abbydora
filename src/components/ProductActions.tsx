@@ -35,11 +35,14 @@ export function ProductActions({ productId, stock }: ProductActionsProps) {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ productId, quantity: 1 }),
       });
-      if (!res.ok) throw new Error("Failed to add to cart");
+      if (!res.ok) {
+        const data = await res.json().catch(() => ({}));
+        throw new Error(data.error || "Failed to add to cart");
+      }
       await refreshCart();
       toast.success("Added to cart!");
-    } catch {
-      toast.error("Could not add to cart. Please try again.");
+    } catch (err: any) {
+      toast.error(err?.message || "Could not add to cart. Please try again.");
     } finally {
       setAddingCart(false);
     }
@@ -61,11 +64,14 @@ export function ProductActions({ productId, stock }: ProductActionsProps) {
         toast.info("Already in your wishlist.");
         return;
       }
-      if (!res.ok) throw new Error("Failed to add to wishlist");
+      if (!res.ok) {
+        const data = await res.json().catch(() => ({}));
+        throw new Error(data.error || "Failed to add to wishlist");
+      }
       await refreshWishlist();
       toast.success("Added to wishlist!");
-    } catch {
-      toast.error("Could not add to wishlist. Please try again.");
+    } catch (err: any) {
+      toast.error(err?.message || "Could not add to wishlist. Please try again.");
     } finally {
       setAddingWishlist(false);
     }

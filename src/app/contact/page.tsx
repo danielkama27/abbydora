@@ -45,7 +45,7 @@ export default function ContactPage() {
           <div className="space-y-4 text-sm text-stone-500">
             <p><strong className="text-stone-900">Email:</strong> abbydoraclothing@gmail.com</p>
             <p><strong className="text-stone-900">Phone:</strong> +254 794 450644</p>
-            <p><strong className="text-stone-900">Hours:</strong> Mon–Fri, 9am–6pm EST</p>
+            <p><strong className="text-stone-900">Hours:</strong> Daily, 6:00 AM – 8:00 PM GMT</p>
           </div>
         </div>
         <form onSubmit={handleSubmit} className="space-y-4">

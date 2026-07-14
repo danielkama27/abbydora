@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { Instagram, Twitter, Facebook, Mail, MapPin, Phone } from "lucide-react";
+import { Instagram, Twitter, Facebook, Mail, MapPin, Phone, Clock } from "lucide-react";
 
 export function Footer() {
   return (
@@ -82,6 +82,10 @@ export function Footer() {
               <li className="flex items-center gap-2 text-sm text-abby-off-white/50">
                 <Mail className="w-4 h-4 text-abby-gold" />
                 abbydoraclothing@gmail.com
+              </li>
+              <li className="flex items-center gap-2 text-sm text-abby-off-white/50">
+                <Clock className="w-4 h-4 text-abby-gold" />
+                Open 6:00 AM – 8:00 PM GMT
               </li>
             </ul>
           </div>

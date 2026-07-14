@@ -1,13 +1,53 @@
 "use client";
 
+import { useEffect, useState } from "react";
 import { TrendingUp, Users, ShoppingBag, DollarSign } from "lucide-react";
+import { formatPrice } from "@/lib/utils";
+
+interface StatsData {
+  stats: {
+    totalUsers: number;
+    totalOrders: number;
+    totalProducts: number;
+    totalRevenue: number;
+  };
+  recentOrders: Array<{
+    id: string;
+    total: number;
+    status: string;
+    user: { name: string | null; email: string | null };
+  }>;
+}
+
+const statusStyle: Record<string, string> = {
+  DELIVERED: "bg-green-50 text-green-600",
+  SHIPPED: "bg-blue-50 text-blue-600",
+  PROCESSING: "bg-amber-50 text-amber-600",
+  PENDING: "bg-amber-50 text-amber-600",
+  CANCELLED: "bg-red-50 text-red-600",
+};
 
 export default function AdminDashboardPage() {
+  const [data, setData] = useState<StatsData | null>(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    fetch("/api/admin/stats")
+      .then((r) => r.json())
+      .then(setData)
+      .finally(() => setLoading(false));
+  }, []);
+
+  const conversion =
+    data && data.stats.totalUsers > 0
+      ? ((data.stats.totalOrders / data.stats.totalUsers) * 100).toFixed(1) + "%"
+      : "—";
+
   const stats = [
-    { label: "Total Revenue", value: "KSh 24,530", icon: DollarSign, change: "+12%" },
-    { label: "Total Orders", value: "1,284", icon: ShoppingBag, change: "+5%" },
-    { label: "Total Customers", value: "3,420", icon: Users, change: "+8%" },
-    { label: "Conversion", value: "3.2%", icon: TrendingUp, change: "+0.4%" },
+    { label: "Total Revenue", value: data ? formatPrice(data.stats.totalRevenue) : "—", icon: DollarSign },
+    { label: "Total Orders", value: data ? data.stats.totalOrders.toLocaleString() : "—", icon: ShoppingBag },
+    { label: "Total Customers", value: data ? data.stats.totalUsers.toLocaleString() : "—", icon: Users },
+    { label: "Orders per Customer", value: conversion, icon: TrendingUp },
   ];
 
   return (
@@ -18,9 +58,8 @@ export default function AdminDashboardPage() {
           <div key={i} className="bg-white border border-stone-100 p-6">
             <div className="flex items-center justify-between mb-4">
               <s.icon className="h-5 w-5 text-stone-400" />
-              <span className="text-xs text-green-600 bg-green-50 px-2 py-0.5">{s.change}</span>
             </div>
-            <p className="text-2xl font-medium text-stone-900">{s.value}</p>
+            <p className="text-2xl font-medium text-stone-900">{loading ? "..." : s.value}</p>
             <p className="text-sm text-stone-400 mt-1">{s.label}</p>
           </div>
         ))}
@@ -39,18 +78,21 @@ export default function AdminDashboardPage() {
               </tr>
             </thead>
             <tbody className="text-stone-600">
-              {[
-                { id: "#ORD-001", customer: "Alice M.", total: "KSh 245.00", status: "Delivered" },
-                { id: "#ORD-002", customer: "John D.", total: "KSh 128.00", status: "Shipped" },
-                { id: "#ORD-003", customer: "Sarah K.", total: "KSh 89.00", status: "Processing" },
-                { id: "#ORD-004", customer: "Mike R.", total: "KSh 356.00", status: "Delivered" },
-              ].map((o, i) => (
-                <tr key={i} className="border-b border-stone-50 last:border-0">
-                  <td className="py-3">{o.id}</td>
-                  <td className="py-3">{o.customer}</td>
-                  <td className="py-3">{o.total}</td>
+              {loading && (
+                <tr><td colSpan={4} className="py-6 text-center text-stone-400">Loading...</td></tr>
+              )}
+              {!loading && (!data || data.recentOrders.length === 0) && (
+                <tr><td colSpan={4} className="py-6 text-center text-stone-400">No orders yet.</td></tr>
+              )}
+              {data?.recentOrders.map((o) => (
+                <tr key={o.id} className="border-b border-stone-50 last:border-0">
+                  <td className="py-3">#{o.id.slice(0, 8).toUpperCase()}</td>
+                  <td className="py-3">{o.user?.name || o.user?.email || "—"}</td>
+                  <td className="py-3">{formatPrice(o.total)}</td>
                   <td className="py-3">
-                    <span className={`text-xs px-2 py-0.5 rounded-sm ${o.status === "Delivered" ? "bg-green-50 text-green-600" : o.status === "Shipped" ? "bg-blue-50 text-blue-600" : "bg-amber-50 text-amber-600"}`}>{o.status}</span>
+                    <span className={`text-xs px-2 py-0.5 rounded-sm ${statusStyle[o.status?.toUpperCase()] || "bg-stone-100 text-stone-600"}`}>
+                      {o.status}
+                    </span>
                   </td>
                 </tr>
               ))}

@@ -6,12 +6,30 @@ import { Button } from "@/components/ui/button";
 import { Minus, Plus, Trash, ShoppingBag } from "lucide-react";
 import Image from "next/image";
 import { formatPrice } from "@/lib/utils";
+import { toast } from "sonner";
 
 export default function CartPage() {
   const { items, subtotal, isLoading, updateItem, removeItem } = useCart();
 
   const shipping = subtotal > 200 ? 0 : 15;
   const total = subtotal + shipping;
+
+  const handleUpdate = async (id: string, quantity: number) => {
+    try {
+      await updateItem(id, quantity);
+    } catch (err: any) {
+      toast.error(err?.message || "Could not update quantity.");
+    }
+  };
+
+  const handleRemove = async (id: string) => {
+    try {
+      await removeItem(id);
+      toast.success("Removed from cart.");
+    } catch (err: any) {
+      toast.error(err?.message || "Could not remove item.");
+    }
+  };
 
   if (isLoading) {
     return (
@@ -54,11 +72,11 @@ export default function CartPage() {
                     </div>
                     <div className="flex items-center justify-between mt-4">
                       <div className="flex items-center border border-stone-200">
-                        <button onClick={() => updateItem(item.id, Math.max(1, item.quantity - 1))} className="p-2 hover:bg-stone-50"><Minus className="h-3 w-3" /></button>
+                        <button onClick={() => handleUpdate(item.id, Math.max(1, item.quantity - 1))} className="p-2 hover:bg-stone-50"><Minus className="h-3 w-3" /></button>
                         <span className="px-3 text-sm">{item.quantity}</span>
-                        <button onClick={() => updateItem(item.id, item.quantity + 1)} className="p-2 hover:bg-stone-50"><Plus className="h-3 w-3" /></button>
+                        <button onClick={() => handleUpdate(item.id, item.quantity + 1)} className="p-2 hover:bg-stone-50"><Plus className="h-3 w-3" /></button>
                       </div>
-                      <button onClick={() => removeItem(item.id)} className="text-stone-400 hover:text-red-600"><Trash className="h-4 w-4" /></button>
+                      <button onClick={() => handleRemove(item.id)} className="text-stone-400 hover:text-red-600"><Trash className="h-4 w-4" /></button>
                     </div>
                   </div>
                 </div>

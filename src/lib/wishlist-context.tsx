@@ -37,16 +37,24 @@ export function WishlistProvider({ children }: { children: React.ReactNode }) {
   }, [refreshWishlist]);
 
   const addItem = useCallback(async (productId: string) => {
-    await fetch("/api/wishlist", {
+    const res = await fetch("/api/wishlist", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ productId }),
     });
+    if (!res.ok) {
+      const data = await res.json().catch(() => ({}));
+      throw new Error(data.error || "Failed to add to wishlist");
+    }
     await refreshWishlist();
   }, [refreshWishlist]);
 
   const removeItem = useCallback(async (id: string) => {
-    await fetch(`/api/wishlist/${id}`, { method: "DELETE" });
+    const res = await fetch(`/api/wishlist/${id}`, { method: "DELETE" });
+    if (!res.ok) {
+      const data = await res.json().catch(() => ({}));
+      throw new Error(data.error || "Failed to remove from wishlist");
+    }
     await refreshWishlist();
   }, [refreshWishlist]);
 

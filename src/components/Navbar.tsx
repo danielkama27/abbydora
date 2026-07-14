@@ -11,12 +11,16 @@ import {
   User,
   LogOut,
   Shield,
+  Sun,
+  Moon,
 } from "lucide-react";
 import { useCart } from "@/lib/cart-context";
+import { useTheme } from "@/lib/theme-context";
 
 export function Navbar() {
   const { user, signOut } = useAuth();
   const { itemCount } = useCart();
+  const { theme, toggleTheme } = useTheme();
   const [mobileOpen, setMobileOpen] = useState(false);
 
   const isAdmin = user?.role === "admin";
@@ -54,6 +58,13 @@ export function Navbar() {
 
           {/* Right Actions */}
           <div className="hidden md:flex items-center gap-4">
+            <button
+              onClick={toggleTheme}
+              aria-label="Toggle theme"
+              className="text-abby-off-white/80 hover:text-abby-gold transition-colors"
+            >
+              {theme === "dark" ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
+            </button>
             {user ? (
               <>
                 <Link
@@ -139,6 +150,13 @@ export function Navbar() {
                 {link.label}
               </Link>
             ))}
+            <button
+              onClick={toggleTheme}
+              className="flex items-center gap-2 text-sm font-medium text-abby-off-white/80 hover:text-abby-gold uppercase tracking-widest"
+            >
+              {theme === "dark" ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
+              {theme === "dark" ? "Light Mode" : "Dark Mode"}
+            </button>
             <div className="pt-3 border-t border-white/10">
               {user ? (
                 <>

@@ -44,8 +44,8 @@ export function ProductCard({ product }: ProductCardProps) {
         await addItem(product.id);
         toast.success("Added to wishlist!");
       }
-    } catch {
-      toast.error("Something went wrong. Please try again.");
+    } catch (err: any) {
+      toast.error(err?.message || "Something went wrong. Please try again.");
     } finally {
       setLoading(false);
     }

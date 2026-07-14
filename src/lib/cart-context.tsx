@@ -27,13 +27,19 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
 
   const refreshCart = useCallback(async () => {
     setIsLoading(true);
-    const res = await fetch("/api/cart");
-    if (res.ok) {
-      const data = await res.json();
-      setItems(data.items);
-      setSubtotal(data.subtotal);
+    try {
+      const res = await fetch("/api/cart");
+      if (res.ok) {
+        const data = await res.json();
+        setItems(data.items);
+        setSubtotal(data.subtotal);
+      } else {
+        setItems([]);
+        setSubtotal(0);
+      }
+    } finally {
+      setIsLoading(false);
     }
-    setIsLoading(false);
   }, []);
 
   useEffect(() => {
@@ -41,25 +47,37 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
   }, [refreshCart]);
 
   const addItem = useCallback(async (productId: string, quantity = 1) => {
-    await fetch("/api/cart", {
+    const res = await fetch("/api/cart", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ productId, quantity }),
     });
+    if (!res.ok) {
+      const data = await res.json().catch(() => ({}));
+      throw new Error(data.error || "Failed to add to cart");
+    }
     await refreshCart();
   }, [refreshCart]);
 
   const updateItem = useCallback(async (id: string, quantity: number) => {
-    await fetch(`/api/cart/${id}`, {
+    const res = await fetch(`/api/cart/${id}`, {
       method: "PUT",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ quantity }),
     });
+    if (!res.ok) {
+      const data = await res.json().catch(() => ({}));
+      throw new Error(data.error || "Failed to update cart");
+    }
     await refreshCart();
   }, [refreshCart]);
 
   const removeItem = useCallback(async (id: string) => {
-    await fetch(`/api/cart/${id}`, { method: "DELETE" });
+    const res = await fetch(`/api/cart/${id}`, { method: "DELETE" });
+    if (!res.ok) {
+      const data = await res.json().catch(() => ({}));
+      throw new Error(data.error || "Failed to remove item");
+    }
     await refreshCart();
   }, [refreshCart]);
 

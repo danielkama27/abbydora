@@ -11,14 +11,14 @@ const config: Config = {
     extend: {
       colors: {
         abby: {
-          black: "#0a0a0a",
-          "black-soft": "#1a1a1a",
-          "black-card": "#242424",
-          "off-white": "#f5f5f0",
-          cream: "#fafaf8",
-          stone: "#e8e8e3",
-          gold: "#c9a96e",
-          "gold-light": "#d4b87a",
+          black: "var(--abby-black)",
+          "black-soft": "var(--abby-black-soft)",
+          "black-card": "var(--abby-black-card)",
+          "off-white": "var(--abby-off-white)",
+          cream: "var(--abby-cream)",
+          stone: "var(--abby-stone)",
+          gold: "var(--abby-gold)",
+          "gold-light": "var(--abby-gold-light)",
         },
       },
       fontFamily: {
