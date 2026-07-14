@@ -3,6 +3,8 @@ import { ArrowRight } from "lucide-react";
 import { prisma } from "@/lib/prisma";
 import { CollectionCard } from "@/components/CollectionCard";
 
+export const dynamic = "force-dynamic";
+
 export default async function CollectionsPage() {
   const collections = await prisma.collection.findMany({
     include: { _count: { select: { products: true } } },
