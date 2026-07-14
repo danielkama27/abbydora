@@ -8,8 +8,8 @@ export default function AdminSettings() {
   const [settings, setSettings] = useState({
     siteName: "ABBYDORA",
     tagline: "Heritage Style, Modern Aesthetics",
-    contactEmail: "hello@abbydora.com",
-    currency: "USD",
+    contactEmail: "abbydoraclothing@gmail.com",
+    currency: "KES",
     shippingRate: "15",
     freeShippingThreshold: "200",
   });
@@ -59,6 +59,7 @@ export default function AdminSettings() {
                 onChange={(e) => setSettings({ ...settings, currency: e.target.value })}
                 className="w-full px-4 py-3 border border-abby-stone rounded-sm focus:outline-none focus:border-abby-gold"
               >
+                <option value="KES">KES (KSh)</option>
                 <option value="USD">USD ($)</option>
                 <option value="EUR">EUR (€)</option>
                 <option value="GBP">GBP (£)</option>

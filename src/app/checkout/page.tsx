@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useCart } from "@/lib/cart-context";
+import { formatPrice } from "@/lib/utils";
 
 export default function CheckoutPage() {
   const { items, subtotal, refreshCart } = useCart();
@@ -113,7 +114,7 @@ export default function CheckoutPage() {
           </div>
 
           <Button onClick={handlePlaceOrder} disabled={placing} className="rounded-none h-12 bg-stone-900 hover:bg-stone-800 text-white w-full sm:w-auto px-12">
-            {placing ? "Placing Order..." : `Place Order — $${total.toFixed(2)}`}
+            {placing ? "Placing Order..." : `Place Order — ${formatPrice(total)}`}
           </Button>
         </div>
 
@@ -130,14 +131,14 @@ export default function CheckoutPage() {
                     <p className="text-sm font-medium text-stone-900">{item.product.name}</p>
                     <p className="text-xs text-stone-400">Qty: {item.quantity}</p>
                   </div>
-                  <span className="text-sm">${(item.product.price * item.quantity).toFixed(2)}</span>
+                  <span className="text-sm">{formatPrice(item.product.price * item.quantity)}</span>
                 </div>
               ))}
             </div>
             <div className="border-t border-stone-100 pt-4 space-y-2 text-sm">
-              <div className="flex justify-between text-stone-500"><span>Subtotal</span><span>${subtotal.toFixed(2)}</span></div>
-              <div className="flex justify-between text-stone-500"><span>Shipping</span><span>{shipping === 0 ? "Free" : `$${shipping.toFixed(2)}`}</span></div>
-              <div className="flex justify-between font-medium text-stone-900 text-base pt-2"><span>Total</span><span>${total.toFixed(2)}</span></div>
+              <div className="flex justify-between text-stone-500"><span>Subtotal</span><span>{formatPrice(subtotal)}</span></div>
+              <div className="flex justify-between text-stone-500"><span>Shipping</span><span>{shipping === 0 ? "Free" : formatPrice(shipping)}</span></div>
+              <div className="flex justify-between font-medium text-stone-900 text-base pt-2"><span>Total</span><span>{formatPrice(total)}</span></div>
             </div>
           </div>
         </div>

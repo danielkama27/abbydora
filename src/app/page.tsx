@@ -60,7 +60,7 @@ export default async function HomePage() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
             {[
-              { icon: Truck, label: "Free Shipping", desc: "On orders over $100" },
+              { icon: Truck, label: "Free Shipping", desc: "On orders over KSh 100" },
               { icon: Shield, label: "Secure Payment", desc: "100% protected" },
               { icon: ShoppingBag, label: "Easy Returns", desc: "30-day policy" },
               { icon: Star, label: "Premium Quality", desc: "Handcrafted pieces" },

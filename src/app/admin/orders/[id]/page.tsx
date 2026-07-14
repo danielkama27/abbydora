@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { useParams } from "next/navigation";
 import Link from "next/link";
 import { ArrowLeft, Package } from "lucide-react";
+import { formatPrice } from "@/lib/utils";
 
 const statusOptions = ["PENDING", "PROCESSING", "SHIPPED", "DELIVERED", "CANCELLED"];
 
@@ -89,16 +90,16 @@ export default function AdminOrderDetail() {
                   <Link href={`/product/${item.product?.id}`} className="text-sm font-semibold text-abby-black hover:text-abby-gold transition-colors">
                     {item.product?.name}
                   </Link>
-                  <p className="text-xs text-abby-black/50">Qty: {item.quantity} × ${item.price?.toFixed(2)}</p>
+                  <p className="text-xs text-abby-black/50">Qty: {item.quantity} × {formatPrice(item.price)}</p>
                 </div>
-                <div className="text-sm font-semibold text-abby-black">${(item.quantity * item.price).toFixed(2)}</div>
+                <div className="text-sm font-semibold text-abby-black">{formatPrice(item.quantity * item.price)}</div>
               </div>
             ))}
           </div>
           <div className="p-6 border-t border-abby-stone bg-abby-cream">
             <div className="flex justify-between items-center">
               <span className="text-sm font-semibold text-abby-black">Total</span>
-              <span className="text-xl font-serif font-bold text-abby-black">${order.total?.toFixed(2)}</span>
+              <span className="text-xl font-serif font-bold text-abby-black">{formatPrice(order.total)}</span>
             </div>
           </div>
         </div>

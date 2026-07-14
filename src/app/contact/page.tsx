@@ -43,8 +43,8 @@ export default function ContactPage() {
         <div>
           <p className="text-stone-500 leading-relaxed mb-6">We'd love to hear from you. Whether you have a question about our products, shipping, or anything else, our team is ready to help.</p>
           <div className="space-y-4 text-sm text-stone-500">
-            <p><strong className="text-stone-900">Email:</strong> support@abbydora.com</p>
-            <p><strong className="text-stone-900">Phone:</strong> +1 (555) 123-4567</p>
+            <p><strong className="text-stone-900">Email:</strong> abbydoraclothing@gmail.com</p>
+            <p><strong className="text-stone-900">Phone:</strong> +254 794 450644</p>
             <p><strong className="text-stone-900">Hours:</strong> Mon–Fri, 9am–6pm EST</p>
           </div>
         </div>

@@ -4,6 +4,7 @@ import { Heart, ShoppingBag, ChevronRight, Star } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { ProductCard } from "@/components/ProductCard";
 import { sampleProducts, getProductById, getRelatedProducts } from "@/data/products";
+import { formatPrice } from "@/lib/utils";
 import type { Metadata } from "next";
 
 export const dynamic = "force-dynamic";
@@ -50,7 +51,7 @@ export default async function ProductPage({ params }: { params: Promise<{ id: st
             </div>
           </div>
 
-          <p className="text-2xl font-light text-stone-900">${product.price}</p>
+          <p className="text-2xl font-light text-stone-900">{formatPrice(product.price)}</p>
           <p className="text-stone-500 leading-relaxed">{product.description}</p>
 
           <div className="space-y-2">

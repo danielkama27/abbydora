@@ -73,15 +73,15 @@ export function Footer() {
             <ul className="space-y-3">
               <li className="flex items-center gap-2 text-sm text-abby-off-white/50">
                 <MapPin className="w-4 h-4 text-abby-gold" />
-                123 Fashion Avenue, NYC
+                Kahawa Sukari Avenue, Nairobi
               </li>
               <li className="flex items-center gap-2 text-sm text-abby-off-white/50">
                 <Phone className="w-4 h-4 text-abby-gold" />
-                +1 (555) 123-4567
+                +254 794 450644
               </li>
               <li className="flex items-center gap-2 text-sm text-abby-off-white/50">
                 <Mail className="w-4 h-4 text-abby-gold" />
-                hello@abbydora.com
+                abbydoraclothing@gmail.com
               </li>
             </ul>
           </div>

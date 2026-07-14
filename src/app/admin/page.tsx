@@ -4,7 +4,7 @@ import { TrendingUp, Users, ShoppingBag, DollarSign } from "lucide-react";
 
 export default function AdminDashboardPage() {
   const stats = [
-    { label: "Total Revenue", value: "$24,530", icon: DollarSign, change: "+12%" },
+    { label: "Total Revenue", value: "KSh 24,530", icon: DollarSign, change: "+12%" },
     { label: "Total Orders", value: "1,284", icon: ShoppingBag, change: "+5%" },
     { label: "Total Customers", value: "3,420", icon: Users, change: "+8%" },
     { label: "Conversion", value: "3.2%", icon: TrendingUp, change: "+0.4%" },
@@ -40,10 +40,10 @@ export default function AdminDashboardPage() {
             </thead>
             <tbody className="text-stone-600">
               {[
-                { id: "#ORD-001", customer: "Alice M.", total: "$245.00", status: "Delivered" },
-                { id: "#ORD-002", customer: "John D.", total: "$128.00", status: "Shipped" },
-                { id: "#ORD-003", customer: "Sarah K.", total: "$89.00", status: "Processing" },
-                { id: "#ORD-004", customer: "Mike R.", total: "$356.00", status: "Delivered" },
+                { id: "#ORD-001", customer: "Alice M.", total: "KSh 245.00", status: "Delivered" },
+                { id: "#ORD-002", customer: "John D.", total: "KSh 128.00", status: "Shipped" },
+                { id: "#ORD-003", customer: "Sarah K.", total: "KSh 89.00", status: "Processing" },
+                { id: "#ORD-004", customer: "Mike R.", total: "KSh 356.00", status: "Delivered" },
               ].map((o, i) => (
                 <tr key={i} className="border-b border-stone-50 last:border-0">
                   <td className="py-3">{o.id}</td>

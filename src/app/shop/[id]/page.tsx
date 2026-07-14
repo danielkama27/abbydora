@@ -93,7 +93,7 @@ export default async function ProductPage({ params }: ProductPageProps) {
               </div>
               <div className="flex items-center gap-2 text-sm text-abby-black/50">
                 <Check className="w-4 h-4 text-abby-gold" />
-                Free shipping on orders over $100
+                Free shipping on orders over KSh 100
               </div>
             </div>
 

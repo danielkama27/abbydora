@@ -5,6 +5,7 @@ import { useCart } from "@/lib/cart-context";
 import { Button } from "@/components/ui/button";
 import { Minus, Plus, Trash, ShoppingBag } from "lucide-react";
 import Image from "next/image";
+import { formatPrice } from "@/lib/utils";
 
 export default function CartPage() {
   const { items, subtotal, isLoading, updateItem, removeItem } = useCart();
@@ -49,7 +50,7 @@ export default function CartPage() {
                         <Link href={`/shop/${item.product.id}`} className="font-medium text-stone-900 hover:underline">{item.product.name}</Link>
                         <p className="text-sm text-stone-400 mt-1">{item.product.category}</p>
                       </div>
-                      <p className="font-medium text-stone-900">${item.product.price}</p>
+                      <p className="font-medium text-stone-900">{formatPrice(item.product.price)}</p>
                     </div>
                     <div className="flex items-center justify-between mt-4">
                       <div className="flex items-center border border-stone-200">
@@ -68,12 +69,12 @@ export default function CartPage() {
           <div className="border border-stone-100 p-6 h-fit">
             <h2 className="font-medium text-stone-900 mb-6">Order Summary</h2>
             <div className="space-y-3 text-sm mb-6">
-              <div className="flex justify-between text-stone-500"><span>Subtotal</span><span>${subtotal.toFixed(2)}</span></div>
-              <div className="flex justify-between text-stone-500"><span>Shipping</span><span>{shipping === 0 ? "Free" : `$${shipping.toFixed(2)}`}</span></div>
-              <div className="border-t border-stone-100 pt-3 flex justify-between font-medium text-stone-900"><span>Total</span><span>${total.toFixed(2)}</span></div>
+              <div className="flex justify-between text-stone-500"><span>Subtotal</span><span>{formatPrice(subtotal)}</span></div>
+              <div className="flex justify-between text-stone-500"><span>Shipping</span><span>{shipping === 0 ? "Free" : formatPrice(shipping)}</span></div>
+              <div className="border-t border-stone-100 pt-3 flex justify-between font-medium text-stone-900"><span>Total</span><span>{formatPrice(total)}</span></div>
             </div>
             <Button className="rounded-none w-full h-12 bg-stone-900 hover:bg-stone-800 text-white">Checkout</Button>
-            <p className="text-xs text-stone-400 mt-3 text-center">Free shipping on orders over $200</p>
+            <p className="text-xs text-stone-400 mt-3 text-center">Free shipping on orders over {formatPrice(200)}</p>
           </div>
         </div>
       )}

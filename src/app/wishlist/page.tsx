@@ -6,6 +6,7 @@ import { useCart } from "@/lib/cart-context";
 import { Button } from "@/components/ui/button";
 import { Heart, ShoppingBag, X } from "lucide-react";
 import Image from "next/image";
+import { formatPrice } from "@/lib/utils";
 
 export default function WishlistPage() {
   const { items, isLoading, removeItem } = useWishlist();
@@ -46,7 +47,7 @@ export default function WishlistPage() {
                 </div>
                 <Link href={`/shop/${item.product.id}`} className="block">
                   <p className="text-sm text-stone-900 hover:underline">{item.product.name}</p>
-                  <p className="text-sm text-stone-500 mt-1">${item.product.price}</p>
+                  <p className="text-sm text-stone-500 mt-1">{formatPrice(item.product.price)}</p>
                 </Link>
                 <Button size="sm" className="mt-3 rounded-none bg-stone-900 hover:bg-stone-800 text-white text-xs" onClick={() => addItem(item.product.id)}>
                   <ShoppingBag className="h-3 w-3 mr-1" /> Add to Cart

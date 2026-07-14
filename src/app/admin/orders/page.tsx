@@ -1,11 +1,11 @@
 "use client";
 
 const orders = [
-  { id: "#ORD-001", customer: "Alice M.", email: "alice@example.com", items: 3, total: "$245.00", status: "Delivered", date: "2024-01-15" },
-  { id: "#ORD-002", customer: "John D.", email: "john@example.com", items: 2, total: "$128.00", status: "Shipped", date: "2024-01-14" },
-  { id: "#ORD-003", customer: "Sarah K.", email: "sarah@example.com", items: 1, total: "$89.00", status: "Processing", date: "2024-01-14" },
-  { id: "#ORD-004", customer: "Mike R.", email: "mike@example.com", items: 4, total: "$356.00", status: "Delivered", date: "2024-01-12" },
-  { id: "#ORD-005", customer: "Emma L.", email: "emma@example.com", items: 2, total: "$178.00", status: "Pending", date: "2024-01-11" },
+  { id: "#ORD-001", customer: "Alice M.", email: "alice@example.com", items: 3, total: "KSh 245.00", status: "Delivered", date: "2024-01-15" },
+  { id: "#ORD-002", customer: "John D.", email: "john@example.com", items: 2, total: "KSh 128.00", status: "Shipped", date: "2024-01-14" },
+  { id: "#ORD-003", customer: "Sarah K.", email: "sarah@example.com", items: 1, total: "KSh 89.00", status: "Processing", date: "2024-01-14" },
+  { id: "#ORD-004", customer: "Mike R.", email: "mike@example.com", items: 4, total: "KSh 356.00", status: "Delivered", date: "2024-01-12" },
+  { id: "#ORD-005", customer: "Emma L.", email: "emma@example.com", items: 2, total: "KSh 178.00", status: "Pending", date: "2024-01-11" },
 ];
 
 export default function AdminOrdersPage() {

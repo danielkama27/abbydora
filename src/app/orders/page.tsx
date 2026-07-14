@@ -1,7 +1,7 @@
 const orders = [
-  { id: "#ORD-001", date: "Jan 15, 2024", items: 3, total: "$245.00", status: "Delivered" },
-  { id: "#ORD-002", date: "Jan 10, 2024", items: 2, total: "$128.00", status: "Shipped" },
-  { id: "#ORD-003", date: "Jan 05, 2024", items: 1, total: "$89.00", status: "Processing" },
+  { id: "#ORD-001", date: "Jan 15, 2024", items: 3, total: "KSh 245.00", status: "Delivered" },
+  { id: "#ORD-002", date: "Jan 10, 2024", items: 2, total: "KSh 128.00", status: "Shipped" },
+  { id: "#ORD-003", date: "Jan 05, 2024", items: 1, total: "KSh 89.00", status: "Processing" },
 ];
 
 export default function OrdersPage() {
