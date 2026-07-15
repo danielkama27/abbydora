@@ -1,9 +1,8 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { ArrowLeft, Check, CreditCard, Truck } from "lucide-react";
+import { ArrowLeft, Check, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -11,14 +10,24 @@ import { useCart } from "@/lib/cart-context";
 import { formatPrice } from "@/lib/utils";
 import { toast } from "sonner";
 
-export default function CheckoutPage() {
-  const { items, subtotal, refreshCart } = useCart();
-  const router = useRouter();
-  const [step, setStep] = useState(1);
+function parseFirstImage(images: string): string {
+  try {
+    const arr = JSON.parse(images || "[]");
+    return Array.isArray(arr) && arr.length > 0 ? arr[0] : "/placeholder.jpg";
+  } catch {
+    return "/placeholder.jpg";
+  }
+}
+
+export default function OrderPage() {
+  const { items, subtotal, isLoading, refreshCart } = useCart();
   const [placing, setPlacing] = useState(false);
   const [placed, setPlaced] = useState(false);
   const [shippingRate, setShippingRate] = useState(15);
   const [freeShippingThreshold, setFreeShippingThreshold] = useState(200);
+  const [form, setForm] = useState({
+    email: "", firstName: "", lastName: "", address: "", city: "", country: "", postalCode: "", phone: "",
+  });
 
   useEffect(() => {
     fetch("/api/settings")
@@ -29,19 +38,22 @@ export default function CheckoutPage() {
       })
       .catch(() => {});
   }, []);
-  const [form, setForm] = useState({
-    email: "", firstName: "", lastName: "", address: "", city: "", country: "", postalCode: "", phone: "",
-  });
 
   const shipping = subtotal >= freeShippingThreshold ? 0 : shippingRate;
   const total = subtotal + shipping;
 
-  const handlePlaceOrder = async () => {
-    alert("Button click registered!");
-    console.log("[checkout] Place Order button clicked");
+  const requiredFieldsFilled =
+    form.email.trim() && form.firstName.trim() && form.lastName.trim() &&
+    form.address.trim() && form.city.trim() && form.country.trim();
+
+  async function handlePlaceOrder() {
+    if (!requiredFieldsFilled) {
+      toast.error("Please fill in your contact and shipping details first.");
+      return;
+    }
+
     setPlacing(true);
     try {
-      console.log("[checkout] sending order request...");
       const res = await fetch("/api/orders", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -49,20 +61,29 @@ export default function CheckoutPage() {
           shippingAddress: `${form.address}, ${form.city}, ${form.country} ${form.postalCode}`,
         }),
       });
-      console.log("[checkout] response status:", res.status);
+      const data = await res.json().catch(() => ({}));
       if (!res.ok) {
-        const data = await res.json().catch(() => ({}));
         throw new Error(data.error || "Failed to place order");
       }
       await refreshCart();
       setPlaced(true);
     } catch (err: any) {
-      console.error("[checkout] order error:", err);
       toast.error(err?.message || "Could not place your order. Please try again.");
     } finally {
       setPlacing(false);
     }
-  };
+  }
+
+  // Wait for the cart to actually finish loading before deciding what to show —
+  // deciding this too early was causing the page to briefly (and sometimes
+  // permanently, on a slow connection) render the wrong state.
+  if (isLoading) {
+    return (
+      <div className="max-w-7xl mx-auto px-4 py-32 flex justify-center">
+        <Loader2 className="h-6 w-6 animate-spin text-stone-400" />
+      </div>
+    );
+  }
 
   if (placed) {
     return (
@@ -70,10 +91,10 @@ export default function CheckoutPage() {
         <div className="w-16 h-16 bg-green-50 rounded-full flex items-center justify-center mx-auto mb-6">
           <Check className="h-8 w-8 text-green-600" />
         </div>
-        <h1 className="font-serif text-3xl font-medium text-stone-900 mb-2">Order Confirmed</h1>
-        <p className="text-stone-500 mb-8">Thank you for your purchase. You will receive an email confirmation shortly.</p>
+        <h1 className="font-serif text-3xl font-medium text-stone-900 mb-2">Order Placed</h1>
+        <p className="text-stone-500 mb-8">Thank you for your order. You'll receive a confirmation shortly.</p>
         <Link href="/orders">
-          <Button className="rounded-none bg-stone-900 hover:bg-stone-800 text-white">View Orders</Button>
+          <Button className="rounded-none bg-stone-900 hover:bg-stone-800 text-white">View My Orders</Button>
         </Link>
       </div>
     );
@@ -94,52 +115,72 @@ export default function CheckoutPage() {
         <ArrowLeft className="h-3 w-3" /> Back to cart
       </Link>
 
+      <h1 className="font-serif text-3xl font-medium text-stone-900 mb-8">Place Your Order</h1>
+
       <div className="grid lg:grid-cols-3 gap-12">
         <div className="lg:col-span-2 space-y-8">
-          {/* Contact */}
           <div className="border border-stone-100 p-6">
             <h2 className="font-medium text-stone-900 mb-4">Contact Information</h2>
-            <div className="grid gap-4">
-              <div>
-                <Label className="text-xs text-stone-500">Email</Label>
-                <Input value={form.email} onChange={(e) => setForm({ ...form, email: e.target.value })} className="rounded-none mt-1" placeholder="you@example.com" />
-              </div>
+            <div>
+              <Label className="text-xs text-stone-500">Email *</Label>
+              <Input
+                type="email"
+                value={form.email}
+                onChange={(e) => setForm({ ...form, email: e.target.value })}
+                className="rounded-none mt-1"
+                placeholder="you@example.com"
+                required
+              />
             </div>
           </div>
 
-          {/* Shipping */}
           <div className="border border-stone-100 p-6">
             <h2 className="font-medium text-stone-900 mb-4">Shipping Address</h2>
             <div className="grid grid-cols-2 gap-4">
               <div>
-                <Label className="text-xs text-stone-500">First Name</Label>
-                <Input value={form.firstName} onChange={(e) => setForm({ ...form, firstName: e.target.value })} className="rounded-none mt-1" />
+                <Label className="text-xs text-stone-500">First Name *</Label>
+                <Input value={form.firstName} onChange={(e) => setForm({ ...form, firstName: e.target.value })} className="rounded-none mt-1" required />
               </div>
               <div>
-                <Label className="text-xs text-stone-500">Last Name</Label>
-                <Input value={form.lastName} onChange={(e) => setForm({ ...form, lastName: e.target.value })} className="rounded-none mt-1" />
+                <Label className="text-xs text-stone-500">Last Name *</Label>
+                <Input value={form.lastName} onChange={(e) => setForm({ ...form, lastName: e.target.value })} className="rounded-none mt-1" required />
               </div>
               <div className="col-span-2">
-                <Label className="text-xs text-stone-500">Address</Label>
-                <Input value={form.address} onChange={(e) => setForm({ ...form, address: e.target.value })} className="rounded-none mt-1" />
+                <Label className="text-xs text-stone-500">Address *</Label>
+                <Input value={form.address} onChange={(e) => setForm({ ...form, address: e.target.value })} className="rounded-none mt-1" required />
               </div>
               <div>
-                <Label className="text-xs text-stone-500">City</Label>
-                <Input value={form.city} onChange={(e) => setForm({ ...form, city: e.target.value })} className="rounded-none mt-1" />
+                <Label className="text-xs text-stone-500">City *</Label>
+                <Input value={form.city} onChange={(e) => setForm({ ...form, city: e.target.value })} className="rounded-none mt-1" required />
               </div>
               <div>
                 <Label className="text-xs text-stone-500">Postal Code</Label>
                 <Input value={form.postalCode} onChange={(e) => setForm({ ...form, postalCode: e.target.value })} className="rounded-none mt-1" />
               </div>
-              <div className="col-span-2">
+              <div>
+                <Label className="text-xs text-stone-500">Country *</Label>
+                <Input value={form.country} onChange={(e) => setForm({ ...form, country: e.target.value })} className="rounded-none mt-1" required />
+              </div>
+              <div>
                 <Label className="text-xs text-stone-500">Phone</Label>
                 <Input value={form.phone} onChange={(e) => setForm({ ...form, phone: e.target.value })} className="rounded-none mt-1" />
               </div>
             </div>
           </div>
 
-          <Button onClick={handlePlaceOrder} disabled={placing} className="rounded-none h-12 bg-stone-900 hover:bg-stone-800 text-white w-full sm:w-auto px-12">
-            {placing ? "Placing Order..." : `Place Order — ${formatPrice(total)}`}
+          <Button
+            type="button"
+            onClick={handlePlaceOrder}
+            disabled={placing}
+            className="rounded-none h-12 bg-stone-900 hover:bg-stone-800 text-white w-full sm:w-auto px-12"
+          >
+            {placing ? (
+              <span className="flex items-center gap-2">
+                <Loader2 className="h-4 w-4 animate-spin" /> Placing Order...
+              </span>
+            ) : (
+              `Place Order — ${formatPrice(total)}`
+            )}
           </Button>
         </div>
 
@@ -147,29 +188,22 @@ export default function CheckoutPage() {
           <div className="border border-stone-100 p-6">
             <h2 className="font-medium text-stone-900 mb-4">Order Summary</h2>
             <div className="space-y-3 mb-4">
-              {items.map((item) => {
-                let itemImages: string[] = [];
-                try {
-                  itemImages = JSON.parse(item.product.images || "[]");
-                } catch {}
-                const image = itemImages[0] || "/placeholder.jpg";
-                return (
-                  <div key={item.id} className="flex gap-3">
-                    <div className="w-12 h-16 bg-stone-100 rounded-sm overflow-hidden flex-shrink-0">
-                      <img src={image} alt="" className="w-full h-full object-cover" />
-                    </div>
-                    <div className="flex-1">
-                      <p className="text-sm font-medium text-stone-900">{item.product.name}</p>
-                      <p className="text-xs text-stone-400">
-                        Qty: {item.quantity}
-                        {(item as any).size && ` · ${(item as any).size}`}
-                        {(item as any).color && ` · ${(item as any).color}`}
-                      </p>
-                    </div>
-                    <span className="text-sm">{formatPrice(item.product.price * item.quantity)}</span>
+              {items.map((item) => (
+                <div key={item.id} className="flex gap-3">
+                  <div className="w-12 h-16 bg-stone-100 rounded-sm overflow-hidden flex-shrink-0">
+                    <img src={parseFirstImage(item.product.images)} alt="" className="w-full h-full object-cover" />
                   </div>
-                );
-              })}
+                  <div className="flex-1">
+                    <p className="text-sm font-medium text-stone-900">{item.product.name}</p>
+                    <p className="text-xs text-stone-400">
+                      Qty: {item.quantity}
+                      {(item as any).size && ` · ${(item as any).size}`}
+                      {(item as any).color && ` · ${(item as any).color}`}
+                    </p>
+                  </div>
+                  <span className="text-sm">{formatPrice(item.product.price * item.quantity)}</span>
+                </div>
+              ))}
             </div>
             <div className="border-t border-stone-100 pt-4 space-y-2 text-sm">
               <div className="flex justify-between text-stone-500"><span>Subtotal</span><span>{formatPrice(subtotal)}</span></div>

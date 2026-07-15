@@ -8,9 +8,9 @@ import {
   Users,
   Star,
   ShoppingCart,
-  Tag,
-  Image,
   Mail,
+  Megaphone,
+  Settings,
   LogOut,
 } from "lucide-react";
 
@@ -24,6 +24,8 @@ const navItems = [
   { icon: Star, label: "Reviews", href: "/admin/reviews" },
   { icon: ShoppingCart, label: "Orders", href: "/admin/orders" },
   { icon: Mail, label: "Messages", href: "/admin/messages" },
+  { icon: Megaphone, label: "Announcements", href: "/admin/announcements" },
+  { icon: Settings, label: "Settings", href: "/admin/settings" },
 ];
 
 export function AdminSidebar() {

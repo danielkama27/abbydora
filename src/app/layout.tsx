@@ -3,6 +3,7 @@ import "./globals.css";
 import { Navbar } from "@/components/Navbar";
 import { Footer } from "@/components/Footer";
 import { Providers } from "@/components/Providers";
+import { AnnouncementBanner } from "@/components/AnnouncementBanner";
 
 export const metadata: Metadata = {
   title: "ABBYDORA | Heritage Luxury Fashion",
@@ -18,6 +19,7 @@ export default function RootLayout({
     <html lang="en">
       <body className="min-h-screen flex flex-col">
         <Providers>
+          <AnnouncementBanner />
           <Navbar />
           <main className="flex-1">{children}</main>
           <Footer />
