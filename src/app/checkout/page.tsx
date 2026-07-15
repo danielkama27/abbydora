@@ -37,8 +37,10 @@ export default function CheckoutPage() {
   const total = subtotal + shipping;
 
   const handlePlaceOrder = async () => {
+    console.log("[checkout] Place Order button clicked");
     setPlacing(true);
     try {
+      console.log("[checkout] sending order request...");
       const res = await fetch("/api/orders", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -46,6 +48,7 @@ export default function CheckoutPage() {
           shippingAddress: `${form.address}, ${form.city}, ${form.country} ${form.postalCode}`,
         }),
       });
+      console.log("[checkout] response status:", res.status);
       if (!res.ok) {
         const data = await res.json().catch(() => ({}));
         throw new Error(data.error || "Failed to place order");
@@ -53,6 +56,7 @@ export default function CheckoutPage() {
       await refreshCart();
       setPlaced(true);
     } catch (err: any) {
+      console.error("[checkout] order error:", err);
       toast.error(err?.message || "Could not place your order. Please try again.");
     } finally {
       setPlacing(false);
@@ -142,18 +146,29 @@ export default function CheckoutPage() {
           <div className="border border-stone-100 p-6">
             <h2 className="font-medium text-stone-900 mb-4">Order Summary</h2>
             <div className="space-y-3 mb-4">
-              {items.map((item) => (
-                <div key={item.id} className="flex gap-3">
-                  <div className="w-12 h-16 bg-stone-100 rounded-sm overflow-hidden flex-shrink-0">
-                    <img src={item.product.images[0]} alt="" className="w-full h-full object-cover" />
+              {items.map((item) => {
+                let itemImages: string[] = [];
+                try {
+                  itemImages = JSON.parse(item.product.images || "[]");
+                } catch {}
+                const image = itemImages[0] || "/placeholder.jpg";
+                return (
+                  <div key={item.id} className="flex gap-3">
+                    <div className="w-12 h-16 bg-stone-100 rounded-sm overflow-hidden flex-shrink-0">
+                      <img src={image} alt="" className="w-full h-full object-cover" />
+                    </div>
+                    <div className="flex-1">
+                      <p className="text-sm font-medium text-stone-900">{item.product.name}</p>
+                      <p className="text-xs text-stone-400">
+                        Qty: {item.quantity}
+                        {(item as any).size && ` · ${(item as any).size}`}
+                        {(item as any).color && ` · ${(item as any).color}`}
+                      </p>
+                    </div>
+                    <span className="text-sm">{formatPrice(item.product.price * item.quantity)}</span>
                   </div>
-                  <div className="flex-1">
-                    <p className="text-sm font-medium text-stone-900">{item.product.name}</p>
-                    <p className="text-xs text-stone-400">Qty: {item.quantity}</p>
-                  </div>
-                  <span className="text-sm">{formatPrice(item.product.price * item.quantity)}</span>
-                </div>
-              ))}
+                );
+              })}
             </div>
             <div className="border-t border-stone-100 pt-4 space-y-2 text-sm">
               <div className="flex justify-between text-stone-500"><span>Subtotal</span><span>{formatPrice(subtotal)}</span></div>
