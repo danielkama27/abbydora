@@ -1,10 +1,16 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
-import { getValidUserId } from "@/lib/session-helpers";
+import { checkSession } from "@/lib/session-helpers";
 
 export async function GET() {
-  const userId = await getValidUserId();
-  if (!userId) return NextResponse.json({ error: "SESSION_EXPIRED" }, { status: 401 });
+  const session = await checkSession();
+  if (session.status === "unauthenticated") {
+    return NextResponse.json({ error: "UNAUTHENTICATED" }, { status: 401 });
+  }
+  if (session.status === "stale") {
+    return NextResponse.json({ error: "SESSION_EXPIRED" }, { status: 401 });
+  }
+  const userId = session.userId;
 
   try {
     const cartItems = await prisma.cartItem.findMany({
@@ -21,8 +27,14 @@ export async function GET() {
 }
 
 export async function POST(request: Request) {
-  const userId = await getValidUserId();
-  if (!userId) return NextResponse.json({ error: "SESSION_EXPIRED" }, { status: 401 });
+  const session = await checkSession();
+  if (session.status === "unauthenticated") {
+    return NextResponse.json({ error: "UNAUTHENTICATED" }, { status: 401 });
+  }
+  if (session.status === "stale") {
+    return NextResponse.json({ error: "SESSION_EXPIRED" }, { status: 401 });
+  }
+  const userId = session.userId;
 
   try {
     const { productId, quantity, size, color } = await request.json();
