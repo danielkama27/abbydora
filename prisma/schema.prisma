@@ -91,6 +91,16 @@ model Wishlist {
   @@unique([userId, productId])
 }
 
+model Settings {
+  id                     String   @id @default("singleton")
+  freeShippingThreshold  Float    @default(200)
+  shippingRate           Float    @default(15)
+  instagramUrl           String?
+  twitterUrl             String?
+  facebookUrl            String?
+  updatedAt              DateTime @updatedAt
+}
+
 model Contact {
   id        String   @id @default(cuid())
   name      String

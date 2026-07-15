@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { ArrowLeft, Check, CreditCard, Truck } from "lucide-react";
@@ -16,11 +16,23 @@ export default function CheckoutPage() {
   const [step, setStep] = useState(1);
   const [placing, setPlacing] = useState(false);
   const [placed, setPlaced] = useState(false);
+  const [shippingRate, setShippingRate] = useState(15);
+  const [freeShippingThreshold, setFreeShippingThreshold] = useState(200);
+
+  useEffect(() => {
+    fetch("/api/settings")
+      .then((r) => r.json())
+      .then((data) => {
+        if (data.shippingRate !== undefined) setShippingRate(data.shippingRate);
+        if (data.freeShippingThreshold !== undefined) setFreeShippingThreshold(data.freeShippingThreshold);
+      })
+      .catch(() => {});
+  }, []);
   const [form, setForm] = useState({
     email: "", firstName: "", lastName: "", address: "", city: "", country: "", postalCode: "", phone: "",
   });
 
-  const shipping = subtotal >= 100 ? 0 : 12;
+  const shipping = subtotal >= freeShippingThreshold ? 0 : shippingRate;
   const total = subtotal + shipping;
 
   const handlePlaceOrder = async () => {

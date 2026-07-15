@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { prisma } from "@/lib/prisma";
 import { ProductCard } from "@/components/ProductCard";
 import { CollectionCard } from "@/components/CollectionCard";
+import { formatPrice } from "@/lib/utils";
 
 export const dynamic = "force-dynamic";
 
@@ -20,6 +21,9 @@ export default async function HomePage() {
     take: 3,
     orderBy: { createdAt: "desc" },
   });
+
+  const settings = await prisma.settings.findUnique({ where: { id: "singleton" } });
+  const freeShippingThreshold = settings?.freeShippingThreshold ?? 200;
 
   return (
     <>
@@ -62,7 +66,7 @@ export default async function HomePage() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
             {[
-              { icon: Truck, label: "Free Shipping", desc: "On orders over KSh 100" },
+              { icon: Truck, label: "Free Shipping", desc: `On orders over ${formatPrice(freeShippingThreshold)}` },
               { icon: Shield, label: "Secure Payment", desc: "100% protected" },
               { icon: ShoppingBag, label: "Easy Returns", desc: "30-day policy" },
               { icon: Star, label: "Premium Quality", desc: "Handcrafted pieces" },

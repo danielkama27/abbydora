@@ -22,8 +22,7 @@ export default function RootLayout({
             __html: `
               try {
                 var stored = localStorage.getItem('abbydora-theme');
-                var theme = stored || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
-                if (theme === 'dark') document.documentElement.classList.add('dark');
+                if (stored === 'dark') document.documentElement.classList.add('dark');
               } catch (e) {}
             `,
           }}

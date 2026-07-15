@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { useEffect, useState } from "react";
 import { useCart } from "@/lib/cart-context";
 import { Button } from "@/components/ui/button";
 import { Minus, Plus, Trash, ShoppingBag } from "lucide-react";
@@ -10,8 +11,20 @@ import { toast } from "sonner";
 
 export default function CartPage() {
   const { items, subtotal, isLoading, updateItem, removeItem } = useCart();
+  const [shippingRate, setShippingRate] = useState(15);
+  const [freeShippingThreshold, setFreeShippingThreshold] = useState(200);
 
-  const shipping = subtotal > 200 ? 0 : 15;
+  useEffect(() => {
+    fetch("/api/settings")
+      .then((r) => r.json())
+      .then((data) => {
+        if (data.shippingRate !== undefined) setShippingRate(data.shippingRate);
+        if (data.freeShippingThreshold !== undefined) setFreeShippingThreshold(data.freeShippingThreshold);
+      })
+      .catch(() => {});
+  }, []);
+
+  const shipping = subtotal > freeShippingThreshold ? 0 : shippingRate;
   const total = subtotal + shipping;
 
   const handleUpdate = async (id: string, quantity: number) => {
@@ -92,7 +105,7 @@ export default function CartPage() {
               <div className="border-t border-stone-100 pt-3 flex justify-between font-medium text-stone-900"><span>Total</span><span>{formatPrice(total)}</span></div>
             </div>
             <Button className="rounded-none w-full h-12 bg-stone-900 hover:bg-stone-800 text-white">Checkout</Button>
-            <p className="text-xs text-stone-400 mt-3 text-center">Free shipping on orders over {formatPrice(200)}</p>
+            <p className="text-xs text-stone-400 mt-3 text-center">Free shipping on orders over {formatPrice(freeShippingThreshold)}</p>
           </div>
         </div>
       )}

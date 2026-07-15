@@ -20,9 +20,7 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
 
   useEffect(() => {
     const stored = window.localStorage.getItem("abbydora-theme") as Theme | null;
-    const initial =
-      stored || (window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light");
-    setTheme(initial);
+    setTheme(stored || "light");
     setMounted(true);
   }, []);
 

@@ -1,7 +1,25 @@
+"use client";
+
 import Link from "next/link";
+import { useEffect, useState } from "react";
 import { Instagram, Twitter, Facebook, Mail, MapPin, Phone, Clock } from "lucide-react";
 
+interface FooterSettings {
+  instagramUrl?: string | null;
+  twitterUrl?: string | null;
+  facebookUrl?: string | null;
+}
+
 export function Footer() {
+  const [settings, setSettings] = useState<FooterSettings>({});
+
+  useEffect(() => {
+    fetch("/api/settings")
+      .then((r) => r.json())
+      .then((data) => setSettings(data))
+      .catch(() => {});
+  }, []);
+
   return (
     <footer className="bg-abby-black border-t border-white/10">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
@@ -15,15 +33,21 @@ export function Footer() {
               Heritage luxury fashion redefined. Crafted with precision, worn with pride.
             </p>
             <div className="flex gap-4">
-              <a href="#" className="text-abby-off-white/50 hover:text-abby-gold transition-colors">
-                <Instagram className="w-5 h-5" />
-              </a>
-              <a href="#" className="text-abby-off-white/50 hover:text-abby-gold transition-colors">
-                <Twitter className="w-5 h-5" />
-              </a>
-              <a href="#" className="text-abby-off-white/50 hover:text-abby-gold transition-colors">
-                <Facebook className="w-5 h-5" />
-              </a>
+              {settings.instagramUrl && (
+                <a href={settings.instagramUrl} target="_blank" rel="noopener noreferrer" className="text-abby-off-white/50 hover:text-abby-gold transition-colors">
+                  <Instagram className="w-5 h-5" />
+                </a>
+              )}
+              {settings.twitterUrl && (
+                <a href={settings.twitterUrl} target="_blank" rel="noopener noreferrer" className="text-abby-off-white/50 hover:text-abby-gold transition-colors">
+                  <Twitter className="w-5 h-5" />
+                </a>
+              )}
+              {settings.facebookUrl && (
+                <a href={settings.facebookUrl} target="_blank" rel="noopener noreferrer" className="text-abby-off-white/50 hover:text-abby-gold transition-colors">
+                  <Facebook className="w-5 h-5" />
+                </a>
+              )}
             </div>
           </div>
 

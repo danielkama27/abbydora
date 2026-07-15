@@ -32,7 +32,7 @@ export const {
       },
       async authorize(credentials) {
         if (!credentials?.email || !credentials?.password) return null;
-        const email = (credentials.email as string).toLowerCase();
+        const email = (credentials.email as string).trim().toLowerCase();
         const user = await prisma.user.findUnique({ where: { email } });
         if (!user || !user.password) return null;
         const isValid = await bcrypt.compare(

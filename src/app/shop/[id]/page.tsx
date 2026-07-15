@@ -6,6 +6,7 @@ import { ArrowLeft, Check } from "lucide-react";
 import Link from "next/link";
 import { ProductGrid } from "@/components/ProductGrid";
 import { ProductActions } from "@/components/ProductActions";
+import { ProductGallery } from "@/components/ProductGallery";
 
 async function getProduct(id: string) {
   return prisma.product.findUnique({ where: { id } });
@@ -24,6 +25,8 @@ interface ProductPageProps {
 
 export default async function ProductPage({ params }: ProductPageProps) {
   const product = await getProduct(params.id);
+  const settings = await prisma.settings.findUnique({ where: { id: "singleton" } });
+  const freeShippingThreshold = settings?.freeShippingThreshold ?? 200;
   if (!product) return notFound();
 
   const images = JSON.parse(product.images || "[]");
@@ -46,26 +49,7 @@ export default async function ProductPage({ params }: ProductPageProps) {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-16">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
           {/* Images */}
-          <div className="space-y-4">
-            <div className="relative aspect-[3/4] bg-abby-stone rounded-sm overflow-hidden">
-              <Image
-                src={images[0] || "/placeholder.jpg"}
-                alt={product.name}
-                fill
-                className="object-cover"
-                priority
-              />
-            </div>
-            {images.length > 1 && (
-              <div className="grid grid-cols-4 gap-2">
-                {images.slice(1, 5).map((img: string, i: number) => (
-                  <div key={i} className="relative aspect-square bg-abby-stone rounded-sm overflow-hidden">
-                    <Image src={img} alt="" fill className="object-cover" />
-                  </div>
-                ))}
-              </div>
-            )}
-          </div>
+          <ProductGallery images={images} alt={product.name} />
 
           {/* Info */}
           <div className="flex flex-col justify-center">
@@ -93,7 +77,7 @@ export default async function ProductPage({ params }: ProductPageProps) {
               </div>
               <div className="flex items-center gap-2 text-sm text-abby-black/50">
                 <Check className="w-4 h-4 text-abby-gold" />
-                Free shipping on orders over KSh 100
+                Free shipping on orders over {formatPrice(freeShippingThreshold)}
               </div>
             </div>
 
