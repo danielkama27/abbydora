@@ -37,6 +37,7 @@ export default function CheckoutPage() {
   const total = subtotal + shipping;
 
   const handlePlaceOrder = async () => {
+    alert("Button click registered!");
     console.log("[checkout] Place Order button clicked");
     setPlacing(true);
     try {
