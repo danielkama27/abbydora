@@ -2,6 +2,8 @@
 
 import React, { createContext, useContext, useState, useCallback, useEffect } from "react";
 import type { CartItem, Product } from "@prisma/client";
+import { signOut } from "next-auth/react";
+import { toast } from "sonner";
 
 interface CartItemWithProduct extends CartItem {
   product: Product;
@@ -12,13 +14,25 @@ interface CartContextType {
   subtotal: number;
   itemCount: number;
   isLoading: boolean;
-  addItem: (productId: string, quantity?: number) => Promise<void>;
+  addItem: (productId: string, quantity?: number, size?: string, color?: string) => Promise<void>;
   updateItem: (id: string, quantity: number) => Promise<void>;
   removeItem: (id: string) => Promise<void>;
   refreshCart: () => Promise<void>;
 }
 
 const CartContext = createContext<CartContextType | undefined>(undefined);
+
+async function handleExpiredSession(res: Response) {
+  if (res.status === 401) {
+    const data = await res.json().catch(() => ({}));
+    if (data.error === "SESSION_EXPIRED") {
+      toast.error("Your session expired. Please sign in again.");
+      await signOut({ redirect: true, callbackUrl: "/auth/signin" });
+      return true;
+    }
+  }
+  return false;
+}
 
 export function CartProvider({ children }: { children: React.ReactNode }) {
   const [items, setItems] = useState<CartItemWithProduct[]>([]);
@@ -34,6 +48,7 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
         setItems(data.items);
         setSubtotal(data.subtotal);
       } else {
+        if (await handleExpiredSession(res)) return;
         setItems([]);
         setSubtotal(0);
       }
@@ -46,13 +61,14 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
     refreshCart();
   }, [refreshCart]);
 
-  const addItem = useCallback(async (productId: string, quantity = 1) => {
+  const addItem = useCallback(async (productId: string, quantity = 1, size?: string, color?: string) => {
     const res = await fetch("/api/cart", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ productId, quantity }),
+      body: JSON.stringify({ productId, quantity, size, color }),
     });
     if (!res.ok) {
+      if (await handleExpiredSession(res)) throw new Error("Session expired");
       const data = await res.json().catch(() => ({}));
       throw new Error(data.error || "Failed to add to cart");
     }
@@ -66,6 +82,7 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
       body: JSON.stringify({ quantity }),
     });
     if (!res.ok) {
+      if (await handleExpiredSession(res)) throw new Error("Session expired");
       const data = await res.json().catch(() => ({}));
       throw new Error(data.error || "Failed to update cart");
     }
@@ -75,6 +92,7 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
   const removeItem = useCallback(async (id: string) => {
     const res = await fetch(`/api/cart/${id}`, { method: "DELETE" });
     if (!res.ok) {
+      if (await handleExpiredSession(res)) throw new Error("Session expired");
       const data = await res.json().catch(() => ({}));
       throw new Error(data.error || "Failed to remove item");
     }

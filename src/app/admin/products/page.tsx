@@ -13,6 +13,8 @@ interface Product {
   stock: number;
   category: string;
   images: string;
+  sizes: string;
+  colors: string;
 }
 
 function firstImage(images: string): string {

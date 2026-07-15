@@ -15,6 +15,7 @@ model User {
   emailVerified DateTime?
   image         String?
   role          String    @default("customer")
+  lastActiveAt  DateTime?
   wishlist      Wishlist[]
   carts         CartItem[]
   orders        Order[]
@@ -42,7 +43,7 @@ model Product {
   originalPrice Float?
   category      String
   images        String      @default("[]")
-  sizes         String      @default("[]")
+  sizes         String      @default("{}")
   colors        String      @default("[]")
   stock         Int         @default(0)
   inventory     Int         @default(0)
@@ -110,14 +111,15 @@ model Contact {
 }
 
 model Order {
-  id        String      @id @default(cuid())
-  userId    String
-  total     Float
-  status    String      @default("pending")
-  user      User        @relation(fields: [userId], references: [id], onDelete: Cascade)
-  items     OrderItem[]
-  createdAt DateTime    @default(now())
-  updatedAt DateTime    @updatedAt
+  id              String      @id @default(cuid())
+  userId          String
+  total           Float
+  status          String      @default("pending")
+  shippingAddress String?
+  user            User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  items           OrderItem[]
+  createdAt       DateTime    @default(now())
+  updatedAt       DateTime    @updatedAt
 }
 
 model CartItem {
@@ -125,12 +127,12 @@ model CartItem {
   userId    String
   productId String
   quantity  Int      @default(1)
+  size      String?
+  color     String?
   product   Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
   user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
-
-  @@unique([userId, productId])
 }
 
 model OrderItem {
@@ -139,6 +141,8 @@ model OrderItem {
   productId String
   quantity  Int
   price     Float
+  size      String?
+  color     String?
   order     Order   @relation(fields: [orderId], references: [id], onDelete: Cascade)
   product   Product @relation(fields: [productId], references: [id], onDelete: Cascade)
 }

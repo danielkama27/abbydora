@@ -14,6 +14,8 @@ export interface ProductFormValues {
   category: string;
   stock: number;
   images: string; // JSON-stringified array, matches Prisma schema
+  sizes?: string; // JSON-stringified { "S": 5, "M": 10 }
+  colors?: string; // JSON-stringified ["Black", "Cream"]
 }
 
 interface ProductFormModalProps {
@@ -31,6 +33,27 @@ function parseImages(images?: string): string[] {
   }
 }
 
+function parseSizes(sizes?: string): { size: string; qty: string }[] {
+  try {
+    const obj = JSON.parse(sizes || "{}");
+    if (obj && typeof obj === "object" && !Array.isArray(obj)) {
+      return Object.entries(obj).map(([size, qty]) => ({ size, qty: String(qty) }));
+    }
+    return [];
+  } catch {
+    return [];
+  }
+}
+
+function parseColors(colors?: string): string[] {
+  try {
+    const arr = JSON.parse(colors || "[]");
+    return Array.isArray(arr) ? arr : [];
+  } catch {
+    return [];
+  }
+}
+
 export function ProductFormModal({ initial, onClose, onSaved }: ProductFormModalProps) {
   const isEdit = Boolean(initial?.id);
   const [name, setName] = useState(initial?.name || "");
@@ -39,6 +62,9 @@ export function ProductFormModal({ initial, onClose, onSaved }: ProductFormModal
   const [category, setCategory] = useState(initial?.category || "");
   const [stock, setStock] = useState(initial?.stock?.toString() || "0");
   const [imageUrls, setImageUrls] = useState<string[]>(parseImages(initial?.images));
+  const [sizeRows, setSizeRows] = useState<{ size: string; qty: string }[]>(parseSizes(initial?.sizes));
+  const [colors, setColors] = useState<string[]>(parseColors(initial?.colors));
+  const [colorInput, setColorInput] = useState("");
   const [uploading, setUploading] = useState(false);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");
@@ -84,18 +110,51 @@ export function ProductFormModal({ initial, onClose, onSaved }: ProductFormModal
     });
   }
 
+  function addSizeRow() {
+    setSizeRows((prev) => [...prev, { size: "", qty: "0" }]);
+  }
+
+  function updateSizeRow(index: number, field: "size" | "qty", value: string) {
+    setSizeRows((prev) => prev.map((row, i) => (i === index ? { ...row, [field]: value } : row)));
+  }
+
+  function removeSizeRow(index: number) {
+    setSizeRows((prev) => prev.filter((_, i) => i !== index));
+  }
+
+  function addColor() {
+    const trimmed = colorInput.trim();
+    if (trimmed && !colors.includes(trimmed)) {
+      setColors((prev) => [...prev, trimmed]);
+    }
+    setColorInput("");
+  }
+
+  function removeColor(color: string) {
+    setColors((prev) => prev.filter((c) => c !== color));
+  }
+
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     setSaving(true);
     setError("");
+
+    const validSizes = sizeRows.filter((r) => r.size.trim());
+    const sizesObj: Record<string, number> = {};
+    validSizes.forEach((r) => {
+      sizesObj[r.size.trim()] = parseInt(r.qty) || 0;
+    });
+    const totalStockFromSizes = validSizes.reduce((sum, r) => sum + (parseInt(r.qty) || 0), 0);
 
     const payload = {
       name,
       description,
       price: parseFloat(price) || 0,
       category,
-      stock: parseInt(stock) || 0,
+      stock: validSizes.length > 0 ? totalStockFromSizes : parseInt(stock) || 0,
       images: JSON.stringify(imageUrls),
+      sizes: JSON.stringify(sizesObj),
+      colors: JSON.stringify(colors),
     };
 
     try {
@@ -210,6 +269,73 @@ export function ProductFormModal({ initial, onClose, onSaved }: ProductFormModal
             <Input value={name} onChange={(e) => setName(e.target.value)} required />
           </div>
 
+          {/* Sizes with per-size stock */}
+          <div>
+            <label className="block text-sm text-stone-600 mb-2">Sizes & Stock</label>
+            <div className="space-y-2">
+              {sizeRows.map((row, i) => (
+                <div key={i} className="flex items-center gap-2">
+                  <Input
+                    placeholder="e.g. S, M, L, 42"
+                    value={row.size}
+                    onChange={(e) => updateSizeRow(i, "size", e.target.value)}
+                    className="flex-1"
+                  />
+                  <Input
+                    type="number"
+                    min="0"
+                    placeholder="Qty"
+                    value={row.qty}
+                    onChange={(e) => updateSizeRow(i, "qty", e.target.value)}
+                    className="w-24"
+                  />
+                  <button type="button" onClick={() => removeSizeRow(i)} className="text-stone-400 hover:text-red-600">
+                    <Trash2 className="h-4 w-4" />
+                  </button>
+                </div>
+              ))}
+            </div>
+            <Button type="button" variant="outline" size="sm" className="rounded-none mt-2" onClick={addSizeRow}>
+              + Add Size
+            </Button>
+            {sizeRows.filter((r) => r.size.trim()).length > 0 && (
+              <p className="text-xs text-stone-400 mt-1">
+                Total stock will be set automatically to the sum of these quantities.
+              </p>
+            )}
+          </div>
+
+          {/* Colors */}
+          <div>
+            <label className="block text-sm text-stone-600 mb-2">Colors</label>
+            <div className="flex flex-wrap gap-2 mb-2">
+              {colors.map((c) => (
+                <span key={c} className="inline-flex items-center gap-1 bg-stone-100 text-stone-700 text-sm px-2 py-1 rounded-sm">
+                  {c}
+                  <button type="button" onClick={() => removeColor(c)} className="text-stone-400 hover:text-red-600">
+                    <X className="h-3 w-3" />
+                  </button>
+                </span>
+              ))}
+            </div>
+            <div className="flex gap-2">
+              <Input
+                placeholder="e.g. Black"
+                value={colorInput}
+                onChange={(e) => setColorInput(e.target.value)}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter") {
+                    e.preventDefault();
+                    addColor();
+                  }
+                }}
+              />
+              <Button type="button" variant="outline" className="rounded-none" onClick={addColor}>
+                Add
+              </Button>
+            </div>
+          </div>
+
           <div>
             <label className="block text-sm text-stone-600 mb-1">Description</label>
             <Textarea value={description} onChange={(e) => setDescription(e.target.value)} rows={3} />
@@ -221,8 +347,18 @@ export function ProductFormModal({ initial, onClose, onSaved }: ProductFormModal
               <Input type="number" step="0.01" min="0" value={price} onChange={(e) => setPrice(e.target.value)} required />
             </div>
             <div>
-              <label className="block text-sm text-stone-600 mb-1">Stock</label>
-              <Input type="number" min="0" value={stock} onChange={(e) => setStock(e.target.value)} />
+              <label className="block text-sm text-stone-600 mb-1">
+                Stock {sizeRows.filter((r) => r.size.trim()).length > 0 && "(auto)"}
+              </label>
+              <Input
+                type="number"
+                min="0"
+                value={sizeRows.filter((r) => r.size.trim()).length > 0
+                  ? sizeRows.reduce((sum, r) => sum + (parseInt(r.qty) || 0), 0)
+                  : stock}
+                onChange={(e) => setStock(e.target.value)}
+                disabled={sizeRows.filter((r) => r.size.trim()).length > 0}
+              />
             </div>
             <div>
               <label className="block text-sm text-stone-600 mb-1">Category</label>

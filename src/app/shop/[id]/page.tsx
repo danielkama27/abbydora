@@ -81,7 +81,7 @@ export default async function ProductPage({ params }: ProductPageProps) {
               </div>
             </div>
 
-            <ProductActions productId={product.id} stock={product.stock} />
+            <ProductActions productId={product.id} stock={product.stock} sizes={product.sizes} colors={product.colors} />
 
             <div className="mt-8 pt-8 border-t border-abby-stone">
               <p className="text-xs text-abby-black/30 uppercase tracking-widest mb-2">

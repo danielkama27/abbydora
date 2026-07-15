@@ -1,14 +1,14 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
-import { auth } from "@/lib/auth";
+import { getValidUserId } from "@/lib/session-helpers";
 
 export async function GET() {
-  const session = await auth();
-  if (!session?.user?.id) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  const userId = await getValidUserId();
+  if (!userId) return NextResponse.json({ error: "SESSION_EXPIRED" }, { status: 401 });
 
   try {
     const cartItems = await prisma.cartItem.findMany({
-      where: { userId: session.user.id },
+      where: { userId },
       include: { product: true },
       orderBy: { createdAt: "desc" },
     });
@@ -21,18 +21,18 @@ export async function GET() {
 }
 
 export async function POST(request: Request) {
-  const session = await auth();
-  if (!session?.user?.id) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  const userId = await getValidUserId();
+  if (!userId) return NextResponse.json({ error: "SESSION_EXPIRED" }, { status: 401 });
 
   try {
-    const { productId, quantity } = await request.json();
+    const { productId, quantity, size, color } = await request.json();
     if (!productId) return NextResponse.json({ error: "Missing productId" }, { status: 400 });
 
     const product = await prisma.product.findUnique({ where: { id: productId } });
     if (!product) return NextResponse.json({ error: "Product not found" }, { status: 404 });
 
-    const existing = await prisma.cartItem.findUnique({
-      where: { userId_productId: { userId: session.user.id, productId } },
+    const existing = await prisma.cartItem.findFirst({
+      where: { userId, productId, size: size || null, color: color || null },
     });
     if (existing) {
       const updated = await prisma.cartItem.update({
@@ -41,7 +41,9 @@ export async function POST(request: Request) {
       });
       return NextResponse.json(updated, { status: 200 });
     }
-    const item = await prisma.cartItem.create({ data: { userId: session.user.id, productId, quantity: quantity || 1 } });
+    const item = await prisma.cartItem.create({
+      data: { userId, productId, quantity: quantity || 1, size: size || null, color: color || null },
+    });
     return NextResponse.json(item, { status: 201 });
   } catch (err: any) {
     console.error("Cart POST error:", err);

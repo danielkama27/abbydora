@@ -79,7 +79,11 @@ export default function CartPage() {
                     <div className="flex items-start justify-between">
                       <div>
                         <Link href={`/shop/${item.product.id}`} className="font-medium text-stone-900 hover:underline">{item.product.name}</Link>
-                        <p className="text-sm text-stone-400 mt-1">{item.product.category}</p>
+                        <p className="text-sm text-stone-400 mt-1">
+                          {item.product.category}
+                          {(item as any).size && ` · Size: ${(item as any).size}`}
+                          {(item as any).color && ` · Color: ${(item as any).color}`}
+                        </p>
                       </div>
                       <p className="font-medium text-stone-900">{formatPrice(item.product.price)}</p>
                     </div>

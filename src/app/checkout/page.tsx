@@ -9,6 +9,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useCart } from "@/lib/cart-context";
 import { formatPrice } from "@/lib/utils";
+import { toast } from "sonner";
 
 export default function CheckoutPage() {
   const { items, subtotal, refreshCart } = useCart();
@@ -37,18 +38,25 @@ export default function CheckoutPage() {
 
   const handlePlaceOrder = async () => {
     setPlacing(true);
-    const orderItems = items.map((i) => ({ productId: i.productId, quantity: i.quantity, price: i.product.price }));
-    await fetch("/api/orders", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        items: orderItems, total, status: "pending",
-        shippingAddress: `${form.address}, ${form.city}, ${form.country} ${form.postalCode}`,
-      }),
-    });
-    await refreshCart();
-    setPlaced(true);
-    setPlacing(false);
+    try {
+      const res = await fetch("/api/orders", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          shippingAddress: `${form.address}, ${form.city}, ${form.country} ${form.postalCode}`,
+        }),
+      });
+      if (!res.ok) {
+        const data = await res.json().catch(() => ({}));
+        throw new Error(data.error || "Failed to place order");
+      }
+      await refreshCart();
+      setPlaced(true);
+    } catch (err: any) {
+      toast.error(err?.message || "Could not place your order. Please try again.");
+    } finally {
+      setPlacing(false);
+    }
   };
 
   if (placed) {

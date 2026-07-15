@@ -1,14 +1,37 @@
 "use client";
 
-const orders = [
-  { id: "#ORD-001", customer: "Alice M.", email: "alice@example.com", items: 3, total: "KSh 245.00", status: "Delivered", date: "2024-01-15" },
-  { id: "#ORD-002", customer: "John D.", email: "john@example.com", items: 2, total: "KSh 128.00", status: "Shipped", date: "2024-01-14" },
-  { id: "#ORD-003", customer: "Sarah K.", email: "sarah@example.com", items: 1, total: "KSh 89.00", status: "Processing", date: "2024-01-14" },
-  { id: "#ORD-004", customer: "Mike R.", email: "mike@example.com", items: 4, total: "KSh 356.00", status: "Delivered", date: "2024-01-12" },
-  { id: "#ORD-005", customer: "Emma L.", email: "emma@example.com", items: 2, total: "KSh 178.00", status: "Pending", date: "2024-01-11" },
-];
+import { useEffect, useState } from "react";
+import Link from "next/link";
+import { formatPrice } from "@/lib/utils";
+
+interface AdminOrder {
+  id: string;
+  total: number;
+  status: string;
+  createdAt: string;
+  items: { id: string }[];
+  user: { name: string | null; email: string | null };
+}
+
+const statusStyle: Record<string, string> = {
+  DELIVERED: "bg-green-50 text-green-600",
+  SHIPPED: "bg-blue-50 text-blue-600",
+  PROCESSING: "bg-amber-50 text-amber-600",
+  PENDING: "bg-amber-50 text-amber-600",
+  CANCELLED: "bg-red-50 text-red-600",
+};
 
 export default function AdminOrdersPage() {
+  const [orders, setOrders] = useState<AdminOrder[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    fetch("/api/admin/orders")
+      .then((r) => r.json())
+      .then((data) => setOrders(Array.isArray(data) ? data : []))
+      .finally(() => setLoading(false));
+  }, []);
+
   return (
     <div className="space-y-6">
       <h1 className="font-serif text-2xl font-medium text-stone-900">Orders</h1>
@@ -22,23 +45,35 @@ export default function AdminOrdersPage() {
                 <th className="pb-3 font-normal">Items</th>
                 <th className="pb-3 font-normal">Total</th>
                 <th className="pb-3 font-normal">Status</th>
-                <th className="pb-3 font-normal">Date</th>
+                <th className="pb-3 pr-6 font-normal">Date</th>
               </tr>
             </thead>
             <tbody>
+              {loading && (
+                <tr><td colSpan={6} className="py-8 text-center text-stone-400">Loading...</td></tr>
+              )}
+              {!loading && orders.length === 0 && (
+                <tr><td colSpan={6} className="py-8 text-center text-stone-400">No orders yet.</td></tr>
+              )}
               {orders.map((o) => (
                 <tr key={o.id} className="border-b border-stone-50 last:border-0">
-                  <td className="py-3 pl-6 text-stone-900">{o.id}</td>
-                  <td className="py-3">
-                    <p className="text-stone-900">{o.customer}</p>
-                    <p className="text-xs text-stone-400">{o.email}</p>
+                  <td className="py-3 pl-6 text-stone-900">
+                    <Link href={`/admin/orders/${o.id}`} className="hover:underline">
+                      #{o.id.slice(0, 8).toUpperCase()}
+                    </Link>
                   </td>
-                  <td className="py-3">{o.items}</td>
-                  <td className="py-3">{o.total}</td>
                   <td className="py-3">
-                    <span className={`text-xs px-2 py-0.5 rounded-sm ${o.status === "Delivered" ? "bg-green-50 text-green-600" : o.status === "Shipped" ? "bg-blue-50 text-blue-600" : o.status === "Processing" ? "bg-amber-50 text-amber-600" : "bg-stone-100 text-stone-600"}`}>{o.status}</span>
+                    <p className="text-stone-900">{o.user?.name || "—"}</p>
+                    <p className="text-xs text-stone-400">{o.user?.email}</p>
                   </td>
-                  <td className="py-3 text-stone-400">{o.date}</td>
+                  <td className="py-3">{o.items.length}</td>
+                  <td className="py-3">{formatPrice(o.total)}</td>
+                  <td className="py-3">
+                    <span className={`text-xs px-2 py-0.5 rounded-sm ${statusStyle[o.status?.toUpperCase()] || "bg-stone-100 text-stone-600"}`}>
+                      {o.status}
+                    </span>
+                  </td>
+                  <td className="py-3 pr-6 text-stone-400">{new Date(o.createdAt).toLocaleDateString()}</td>
                 </tr>
               ))}
             </tbody>

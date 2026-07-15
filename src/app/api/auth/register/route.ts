@@ -62,6 +62,7 @@ export async function POST(request: Request) {
       { status: 201 }
     );
   } catch (error: any) {
+    console.error("Registration error:", error);
     return NextResponse.json(
       { error: error.message || "Something went wrong" },
       { status: 500 }

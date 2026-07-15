@@ -1,14 +1,14 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
-import { auth } from "@/lib/auth";
+import { getValidUserId } from "@/lib/session-helpers";
 
 export async function GET() {
-  const session = await auth();
-  if (!session?.user?.id) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  const userId = await getValidUserId();
+  if (!userId) return NextResponse.json({ error: "SESSION_EXPIRED" }, { status: 401 });
 
   try {
     const wishlist = await prisma.wishlist.findMany({
-      where: { userId: session.user.id },
+      where: { userId },
       include: { product: true },
       orderBy: { createdAt: "desc" },
     });
@@ -20,8 +20,8 @@ export async function GET() {
 }
 
 export async function POST(request: Request) {
-  const session = await auth();
-  if (!session?.user?.id) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  const userId = await getValidUserId();
+  if (!userId) return NextResponse.json({ error: "SESSION_EXPIRED" }, { status: 401 });
 
   try {
     const { productId } = await request.json();
@@ -31,10 +31,10 @@ export async function POST(request: Request) {
     if (!product) return NextResponse.json({ error: "Product not found" }, { status: 404 });
 
     const existing = await prisma.wishlist.findUnique({
-      where: { userId_productId: { userId: session.user.id, productId } },
+      where: { userId_productId: { userId, productId } },
     });
     if (existing) return NextResponse.json({ error: "Already in wishlist" }, { status: 400 });
-    const item = await prisma.wishlist.create({ data: { userId: session.user.id, productId } });
+    const item = await prisma.wishlist.create({ data: { userId, productId } });
     return NextResponse.json(item, { status: 201 });
   } catch (err: any) {
     console.error("Wishlist POST error:", err);
