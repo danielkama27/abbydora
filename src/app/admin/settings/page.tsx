@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { Check } from "lucide-react";
+import { toast } from "sonner";
 
 export default function AdminSettings() {
   const [saved, setSaved] = useState(false);
@@ -41,8 +42,14 @@ export default function AdminSettings() {
       });
       if (res.ok) {
         setSaved(true);
+        toast.success("Settings saved.");
         setTimeout(() => setSaved(false), 2000);
+      } else {
+        const data = await res.json().catch(() => ({}));
+        toast.error(data.error || `Failed to save (status ${res.status})`);
       }
+    } catch (err: any) {
+      toast.error(err?.message || "Failed to save settings");
     } finally {
       setSaving(false);
     }
