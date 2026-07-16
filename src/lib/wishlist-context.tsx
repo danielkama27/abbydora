@@ -25,7 +25,9 @@ async function handleExpiredSession(res: Response) {
     const data = await res.json().catch(() => ({}));
     if (data.error === "SESSION_EXPIRED") {
       toast.error("Your session expired. Please sign in again.");
-      await signOut({ redirect: true, callbackUrl: "/auth/signin" });
+      signOut({ redirect: false }).then(() => {
+        window.location.href = "/auth/signin";
+      });
       return true;
     }
   }

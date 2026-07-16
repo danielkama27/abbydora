@@ -13,6 +13,7 @@ import {
   Shield,
 } from "lucide-react";
 import { useCart } from "@/lib/cart-context";
+import { NotificationBell } from "@/components/NotificationBell";
 
 export function Navbar() {
   const { user, signOut } = useAuth();
@@ -54,6 +55,7 @@ export function Navbar() {
 
           {/* Right Actions */}
           <div className="hidden md:flex items-center gap-4">
+            <NotificationBell />
             {user ? (
               <>
                 <Link

@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
+import { auth } from "@/lib/auth";
 
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
@@ -37,7 +38,16 @@ export async function GET(request: Request) {
 }
 
 export async function POST(request: Request) {
-  const body = await request.json();
-  const product = await prisma.product.create({ data: body });
-  return NextResponse.json(product, { status: 201 });
+  const session = await auth();
+  if (!session?.user || (session.user as any).role !== "admin") {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
+  try {
+    const body = await request.json();
+    const product = await prisma.product.create({ data: body });
+    return NextResponse.json(product, { status: 201 });
+  } catch (err: any) {
+    console.error("Product POST error:", err);
+    return NextResponse.json({ error: err?.message || "Failed to create product" }, { status: 500 });
+  }
 }
