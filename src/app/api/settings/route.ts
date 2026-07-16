@@ -21,11 +21,29 @@ export async function GET() {
 }
 
 export async function PUT(request: Request) {
-  // TEMPORARY: testing whether the auth() check is what breaks this route.
   const session = await auth();
-  return NextResponse.json({ ok: true, debug: "auth check passed", hasSession: !!session });
-}
+  if (!session?.user || (session.user as any).role !== "admin") {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
 
-export async function POST(request: Request) {
-  return NextResponse.json({ ok: true, debug: "minimal POST reached" });
+  try {
+    const body = await request.json();
+    const { freeShippingThreshold, shippingRate, instagramUrl, twitterUrl, facebookUrl } = body;
+
+    await getOrCreateSettings();
+    const updated = await prisma.settings.update({
+      where: { id: "singleton" },
+      data: {
+        ...(freeShippingThreshold !== undefined && { freeShippingThreshold: parseFloat(freeShippingThreshold) }),
+        ...(shippingRate !== undefined && { shippingRate: parseFloat(shippingRate) }),
+        ...(instagramUrl !== undefined && { instagramUrl: instagramUrl || null }),
+        ...(twitterUrl !== undefined && { twitterUrl: twitterUrl || null }),
+        ...(facebookUrl !== undefined && { facebookUrl: facebookUrl || null }),
+      },
+    });
+    return NextResponse.json(updated);
+  } catch (err: any) {
+    console.error("Settings PUT error:", err);
+    return NextResponse.json({ error: err?.message || "Failed to update settings" }, { status: 500 });
+  }
 }
