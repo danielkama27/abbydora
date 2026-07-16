@@ -21,9 +21,9 @@ export async function GET() {
 }
 
 export async function PUT(request: Request) {
-  // TEMPORARY: stripped down to isolate a 405 bug — bypasses auth/db entirely
-  // to test whether this exact route path can handle PUT at all.
-  return NextResponse.json({ ok: true, debug: "minimal PUT reached" });
+  // TEMPORARY: testing whether the auth() check is what breaks this route.
+  const session = await auth();
+  return NextResponse.json({ ok: true, debug: "auth check passed", hasSession: !!session });
 }
 
 export async function POST(request: Request) {
