@@ -47,6 +47,7 @@ export default function OrderPage() {
     form.address.trim() && form.city.trim() && form.country.trim();
 
   async function handlePlaceOrder() {
+    alert("Click registered on the new Order page!");
     if (!requiredFieldsFilled) {
       toast.error("Please fill in your contact and shipping details first.");
       return;
