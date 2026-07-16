@@ -27,6 +27,14 @@ export async function GET() {
 }
 
 export async function POST(request: Request) {
+  return placeOrder(request);
+}
+
+export async function PUT(request: Request) {
+  return placeOrder(request);
+}
+
+async function placeOrder(request: Request) {
   const session = await checkSession();
   if (session.status === "unauthenticated") {
     return NextResponse.json({ error: "UNAUTHENTICATED" }, { status: 401 });

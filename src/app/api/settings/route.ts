@@ -21,6 +21,14 @@ export async function GET() {
 }
 
 export async function PUT(request: Request) {
+  return updateSettings(request);
+}
+
+export async function POST(request: Request) {
+  return updateSettings(request);
+}
+
+async function updateSettings(request: Request) {
   const session = await auth();
   if (!session?.user || (session.user as any).role !== "admin") {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
@@ -43,7 +51,7 @@ export async function PUT(request: Request) {
     });
     return NextResponse.json(updated);
   } catch (err: any) {
-    console.error("Settings PUT error:", err);
+    console.error("Settings update error:", err);
     return NextResponse.json({ error: err?.message || "Failed to update settings" }, { status: 500 });
   }
 }

@@ -35,11 +35,19 @@ export default function AdminSettings() {
     e.preventDefault();
     setSaving(true);
     try {
-      const res = await fetch("/api/settings", {
+      let res = await fetch("/api/settings", {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(settings),
       });
+      if (res.status === 405) {
+        // Some hosting setups occasionally block PUT — retry with POST as a fallback.
+        res = await fetch("/api/settings", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(settings),
+        });
+      }
       if (res.ok) {
         setSaved(true);
         toast.success("Settings saved.");

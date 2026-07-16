@@ -54,13 +54,23 @@ export default function OrderPage() {
 
     setPlacing(true);
     try {
-      const res = await fetch("/api/orders", {
+      let res = await fetch("/api/orders", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           shippingAddress: `${form.address}, ${form.city}, ${form.country} ${form.postalCode}`,
         }),
       });
+      if (res.status === 405) {
+        // Some hosting setups occasionally block one HTTP method — retry with PUT as a fallback.
+        res = await fetch("/api/orders", {
+          method: "PUT",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            shippingAddress: `${form.address}, ${form.city}, ${form.country} ${form.postalCode}`,
+          }),
+        });
+      }
       const data = await res.json().catch(() => ({}));
       if (!res.ok) {
         throw new Error(data.error || "Failed to place order");
