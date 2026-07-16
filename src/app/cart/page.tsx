@@ -108,7 +108,9 @@ export default function CartPage() {
               <div className="flex justify-between text-stone-500"><span>Shipping</span><span>{shipping === 0 ? "Free" : formatPrice(shipping)}</span></div>
               <div className="border-t border-stone-100 pt-3 flex justify-between font-medium text-stone-900"><span>Total</span><span>{formatPrice(total)}</span></div>
             </div>
-            <Button className="rounded-none w-full h-12 bg-stone-900 hover:bg-stone-800 text-white">Place Order</Button>
+            <Link href="/checkout">
+              <Button className="rounded-none w-full h-12 bg-stone-900 hover:bg-stone-800 text-white">Place Order</Button>
+            </Link>
             <p className="text-xs text-stone-400 mt-3 text-center">Free shipping on orders over {formatPrice(freeShippingThreshold)}</p>
           </div>
         </div>
