@@ -23,20 +23,30 @@ export default function AdminOrderDetail() {
   }, [params.id]);
 
   const updateStatus = async (status: string) => {
-    await fetch(`/api/orders/${params.id}`, {
+    const res = await fetch(`/api/orders/${params.id}`, {
       method: "PUT",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ status }),
     });
+    if (!res.ok) {
+      const data = await res.json().catch(() => ({}));
+      alert(`Could not update status: ${data.error || res.status}`);
+      return;
+    }
     setOrder({ ...order, status });
   };
 
   const updatePaymentStatus = async (paymentStatus: string) => {
-    await fetch(`/api/orders/${params.id}`, {
+    const res = await fetch(`/api/orders/${params.id}`, {
       method: "PUT",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ paymentStatus }),
     });
+    if (!res.ok) {
+      const data = await res.json().catch(() => ({}));
+      alert(`Could not update payment status: ${data.error || res.status}`);
+      return;
+    }
     setOrder({ ...order, paymentStatus });
   };
 
