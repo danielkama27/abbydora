@@ -122,6 +122,21 @@ model Discount {
   createdAt    DateTime  @default(now())
 }
 
+model PasswordResetToken {
+  id        String   @id @default(cuid())
+  email     String
+  token     String   @unique
+  expiresAt DateTime
+  usedAt    DateTime?
+  createdAt DateTime @default(now())
+}
+
+model NewsletterSubscriber {
+  id           String   @id @default(cuid())
+  email        String   @unique
+  subscribedAt DateTime @default(now())
+}
+
 model Contact {
   id        String   @id @default(cuid())
   name      String

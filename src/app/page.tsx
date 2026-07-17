@@ -5,6 +5,7 @@ import { prisma } from "@/lib/prisma";
 import { ProductCard } from "@/components/ProductCard";
 import { CollectionCard } from "@/components/CollectionCard";
 import { formatPrice } from "@/lib/utils";
+import { NewsletterForm } from "@/components/NewsletterForm";
 
 export const dynamic = "force-dynamic";
 
@@ -140,14 +141,7 @@ export default async function HomePage() {
           <span className="text-xs tracking-[0.3em] uppercase text-stone-400 block mb-3">Stay Updated</span>
           <h2 className="font-serif text-3xl font-medium text-stone-900 mb-4">Join Our Newsletter</h2>
           <p className="text-stone-500 mb-8">Be the first to know about new arrivals, exclusive offers, and styling tips.</p>
-          <form className="flex gap-3 max-w-md mx-auto">
-            <input
-              type="email"
-              placeholder="Enter your email"
-              className="flex-1 h-12 px-4 bg-white border border-stone-200 rounded-none text-sm focus:outline-none focus:border-stone-400"
-            />
-            <Button className="rounded-none bg-stone-900 hover:bg-stone-800 text-white h-12 px-6">Subscribe</Button>
-          </form>
+          <NewsletterForm />
         </div>
       </section>
     </>

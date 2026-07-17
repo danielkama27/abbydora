@@ -111,7 +111,7 @@ export default function OrderPage() {
     setPlacing(true);
     try {
       const payload = {
-        shippingAddress: `${form.address}, ${form.city}, ${form.country} ${form.postalCode}`,
+        shippingAddress: `${form.address}, ${form.city}, ${form.country} ${form.postalCode}${form.phone ? ` — Phone: ${form.phone}` : ""}`,
         paymentMethod,
         mpesaPhone: paymentMethod === "mpesa" ? mpesaPhone : undefined,
         discountCode: appliedDiscount?.code,

@@ -51,6 +51,7 @@ const navGroups = [
       { icon: ImageIcon, label: "Homepage Hero", href: "/admin/marketing/hero" },
       { icon: Tag, label: "Discount Codes", href: "/admin/marketing/discounts" },
       { icon: Megaphone, label: "Announcements", href: "/admin/announcements" },
+      { icon: Mail, label: "Newsletter", href: "/admin/marketing/newsletter" },
     ],
   },
   {

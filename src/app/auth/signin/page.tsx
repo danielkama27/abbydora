@@ -125,6 +125,13 @@ export default function SignInPage() {
                 {showPass ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
               </button>
             </div>
+            {!isSignUp && (
+              <div className="text-right mt-1">
+                <Link href="/auth/forgot-password" className="text-xs text-stone-400 hover:text-stone-900">
+                  Forgot password?
+                </Link>
+              </div>
+            )}
           </div>
           <Button
             type="submit"
