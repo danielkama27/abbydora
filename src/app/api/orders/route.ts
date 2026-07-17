@@ -47,7 +47,7 @@ async function placeOrder(request: Request) {
 
   try {
     const body = await request.json();
-    const { shippingAddress, paymentMethod, mpesaPhone } = body;
+    const { shippingAddress, paymentMethod, mpesaPhone, discountCode } = body;
 
     // Always build the order from the user's actual server-side cart —
     // never trust prices/items the client claims, and never trust a
@@ -83,7 +83,33 @@ async function placeOrder(request: Request) {
       }
     }
 
-    const total = cartItems.reduce((sum, item) => sum + item.product.price * item.quantity, 0);
+    const subtotal = cartItems.reduce((sum, item) => sum + item.product.price * item.quantity, 0);
+
+    // Look up real shipping settings server-side too — never trust the
+    // client's displayed total for what to actually charge.
+    const settings = await prisma.settings.findUnique({ where: { id: "singleton" } });
+    const shippingRate = settings?.shippingRate ?? 15;
+    const freeShippingThreshold = settings?.freeShippingThreshold ?? 200;
+    const shippingCost = subtotal >= freeShippingThreshold ? 0 : shippingRate;
+
+    // Re-validate the discount code ourselves — never trust a discount
+    // amount computed on the client.
+    let discountAmount = 0;
+    let appliedDiscount: { id: string; code: string } | null = null;
+    if (discountCode) {
+      const discount = await prisma.discount.findUnique({ where: { code: discountCode.trim().toUpperCase() } });
+      if (discount && discount.active) {
+        const notExpired = !discount.expiresAt || new Date(discount.expiresAt) >= new Date();
+        const underLimit = discount.usageLimit === null || discount.timesUsed < discount.usageLimit;
+        if (notExpired && underLimit) {
+          discountAmount =
+            discount.type === "percentage" ? subtotal * (discount.value / 100) : Math.min(discount.value, subtotal);
+          appliedDiscount = { id: discount.id, code: discount.code };
+        }
+      }
+    }
+
+    const total = Math.max(0, subtotal + shippingCost - discountAmount);
 
     const order = await prisma.$transaction(async (tx) => {
       const created = await tx.order.create({
@@ -133,6 +159,13 @@ async function placeOrder(request: Request) {
 
       // Only clear THIS user's cart, never everyone's.
       await tx.cartItem.deleteMany({ where: { userId } });
+
+      if (appliedDiscount) {
+        await tx.discount.update({
+          where: { id: appliedDiscount.id },
+          data: { timesUsed: { increment: 1 } },
+        });
+      }
 
       return created;
     });

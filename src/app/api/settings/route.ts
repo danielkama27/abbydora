@@ -36,7 +36,12 @@ async function updateSettings(request: Request) {
 
   try {
     const body = await request.json();
-    const { freeShippingThreshold, shippingRate, instagramUrl, twitterUrl, facebookUrl } = body;
+    const {
+      freeShippingThreshold, shippingRate,
+      instagramUrl, twitterUrl, facebookUrl,
+      tiktokUrl, youtubeUrl, linkedinUrl, pinterestUrl, whatsappNumber,
+      heroMediaUrl, heroMediaType, heroPromoText,
+    } = body;
 
     await getOrCreateSettings();
     const updated = await prisma.settings.update({
@@ -47,6 +52,14 @@ async function updateSettings(request: Request) {
         ...(instagramUrl !== undefined && { instagramUrl: instagramUrl || null }),
         ...(twitterUrl !== undefined && { twitterUrl: twitterUrl || null }),
         ...(facebookUrl !== undefined && { facebookUrl: facebookUrl || null }),
+        ...(tiktokUrl !== undefined && { tiktokUrl: tiktokUrl || null }),
+        ...(youtubeUrl !== undefined && { youtubeUrl: youtubeUrl || null }),
+        ...(linkedinUrl !== undefined && { linkedinUrl: linkedinUrl || null }),
+        ...(pinterestUrl !== undefined && { pinterestUrl: pinterestUrl || null }),
+        ...(whatsappNumber !== undefined && { whatsappNumber: whatsappNumber || null }),
+        ...(heroMediaUrl !== undefined && { heroMediaUrl: heroMediaUrl || null }),
+        ...(heroMediaType !== undefined && { heroMediaType: heroMediaType || null }),
+        ...(heroPromoText !== undefined && { heroPromoText: heroPromoText || null }),
       },
     });
     return NextResponse.json(updated);

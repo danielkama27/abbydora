@@ -10,12 +10,16 @@ interface StatsData {
     totalOrders: number;
     totalProducts: number;
     totalRevenue: number;
+    onlineOrders?: number;
+    posOrders?: number;
   };
   recentOrders: Array<{
     id: string;
     total: number;
     status: string;
-    user: { name: string | null; email: string | null };
+    channel?: string;
+    guestName?: string | null;
+    user: { name: string | null; email: string | null } | null;
   }>;
 }
 
@@ -52,7 +56,11 @@ export default function AdminDashboardPage() {
     { label: "Total Revenue", value: data ? formatPrice(data.stats.totalRevenue) : "—", icon: DollarSign },
     { label: "Total Orders", value: data ? data.stats.totalOrders.toLocaleString() : "—", icon: ShoppingBag },
     { label: "Total Customers", value: data ? data.stats.totalUsers.toLocaleString() : "—", icon: Users },
-    { label: "Orders per Customer", value: conversion, icon: TrendingUp },
+    {
+      label: "Online vs In-Store",
+      value: data ? `${data.stats.onlineOrders ?? 0} / ${data.stats.posOrders ?? 0}` : "—",
+      icon: TrendingUp,
+    },
   ];
 
   return (
@@ -98,7 +106,9 @@ export default function AdminDashboardPage() {
               {data?.recentOrders.map((o) => (
                 <tr key={o.id} className="border-b border-stone-50 last:border-0">
                   <td className="py-3">#{o.id.slice(0, 8).toUpperCase()}</td>
-                  <td className="py-3">{o.user?.name || o.user?.email || "—"}</td>
+                  <td className="py-3">
+                    {o.user?.name || o.user?.email || o.guestName || (o.channel === "pos" ? "Walk-in (POS)" : "—")}
+                  </td>
                   <td className="py-3">{formatPrice(o.total)}</td>
                   <td className="py-3">
                     <span className={`text-xs px-2 py-0.5 rounded-sm ${statusStyle[o.status?.toUpperCase()] || "bg-stone-100 text-stone-600"}`}>

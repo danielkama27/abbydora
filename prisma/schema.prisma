@@ -99,7 +99,27 @@ model Settings {
   instagramUrl           String?
   twitterUrl             String?
   facebookUrl            String?
+  tiktokUrl              String?
+  youtubeUrl             String?
+  linkedinUrl            String?
+  pinterestUrl           String?
+  whatsappNumber         String?
+  heroMediaUrl           String?
+  heroMediaType          String?  // "image" or "video"
+  heroPromoText          String?  // e.g. "20% OFF" shown as a badge over the hero
   updatedAt              DateTime @updatedAt
+}
+
+model Discount {
+  id           String    @id @default(cuid())
+  code         String    @unique
+  type         String    // "percentage" or "fixed"
+  value        Float
+  active       Boolean   @default(true)
+  expiresAt    DateTime?
+  usageLimit   Int?
+  timesUsed    Int       @default(0)
+  createdAt    DateTime  @default(now())
 }
 
 model Contact {

@@ -1,17 +1,30 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
 
+function whatsappLink(number: string): string {
+  const digits = number.replace(/[^\d]/g, "");
+  return `https://wa.me/${digits}`;
+}
+
 export default function ContactPage() {
   const [loading, setLoading] = useState(false);
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [message, setMessage] = useState("");
+  const [whatsappNumber, setWhatsappNumber] = useState("");
+
+  useEffect(() => {
+    fetch("/api/settings")
+      .then((r) => r.json())
+      .then((data) => setWhatsappNumber(data.whatsappNumber || ""))
+      .catch(() => {});
+  }, []);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -46,6 +59,14 @@ export default function ContactPage() {
             <p><strong className="text-stone-900">Email:</strong> abbydoraclothing@gmail.com</p>
             <p><strong className="text-stone-900">Phone:</strong> +254 794 450644</p>
             <p><strong className="text-stone-900">Hours:</strong> Daily, 6:00 AM – 8:00 PM GMT</p>
+            {whatsappNumber && (
+              <p>
+                <strong className="text-stone-900">WhatsApp:</strong>{" "}
+                <a href={whatsappLink(whatsappNumber)} target="_blank" rel="noopener noreferrer" className="text-green-600 hover:underline">
+                  {whatsappNumber} (Chat now)
+                </a>
+              </p>
+            )}
           </div>
         </div>
         <form onSubmit={handleSubmit} className="space-y-4">

@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { toast } from "sonner";
 
 interface AdminUser {
   id: string;
@@ -48,6 +49,26 @@ export default function AdminUsersPage() {
 
   const onlineCount = users.filter(isOnline).length;
 
+  async function toggleRole(u: AdminUser) {
+    const newRole = u.role === "admin" ? "customer" : "admin";
+    if (!confirm(`${newRole === "admin" ? "Make" : "Remove"} ${u.email} ${newRole === "admin" ? "an admin" : "as admin"}?`)) return;
+    try {
+      const res = await fetch(`/api/admin/users/${u.id}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ role: newRole }),
+      });
+      if (!res.ok) {
+        const data = await res.json().catch(() => ({}));
+        throw new Error(data.error || "Failed to update role");
+      }
+      toast.success(`${u.email} is now ${newRole === "admin" ? "an admin" : "a customer"}.`);
+      load();
+    } catch (err: any) {
+      toast.error(err?.message || "Could not update role");
+    }
+  }
+
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
@@ -68,15 +89,16 @@ export default function AdminUsersPage() {
                 <th className="pb-3 font-normal">Role</th>
                 <th className="pb-3 font-normal">Orders</th>
                 <th className="pb-3 font-normal">Last Active</th>
-                <th className="pb-3 pr-6 font-normal">Joined</th>
+                <th className="pb-3 font-normal">Joined</th>
+                <th className="pb-3 pr-6 font-normal text-right">Actions</th>
               </tr>
             </thead>
             <tbody>
               {loading && (
-                <tr><td colSpan={7} className="py-8 text-center text-stone-400">Loading...</td></tr>
+                <tr><td colSpan={8} className="py-8 text-center text-stone-400">Loading...</td></tr>
               )}
               {!loading && users.length === 0 && (
-                <tr><td colSpan={7} className="py-8 text-center text-stone-400">No customers yet.</td></tr>
+                <tr><td colSpan={8} className="py-8 text-center text-stone-400">No customers yet.</td></tr>
               )}
               {users.map((u) => (
                 <tr key={u.id} className="border-b border-stone-50 last:border-0">
@@ -95,7 +117,15 @@ export default function AdminUsersPage() {
                   </td>
                   <td className="py-3">{u._count.orders}</td>
                   <td className="py-3 text-stone-400">{timeAgo(u.lastActiveAt)}</td>
-                  <td className="py-3 pr-6 text-stone-400">{new Date(u.createdAt).toLocaleDateString()}</td>
+                  <td className="py-3 text-stone-400">{new Date(u.createdAt).toLocaleDateString()}</td>
+                  <td className="py-3 pr-6 text-right">
+                    <button
+                      onClick={() => toggleRole(u)}
+                      className="text-xs px-3 py-1.5 border border-stone-200 rounded-sm hover:border-stone-900 transition-colors"
+                    >
+                      {u.role === "admin" ? "Remove Admin" : "Make Admin"}
+                    </button>
+                  </td>
                 </tr>
               ))}
             </tbody>

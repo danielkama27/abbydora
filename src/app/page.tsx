@@ -52,11 +52,27 @@ export default async function HomePage() {
             </div>
           </div>
           <div className="relative aspect-[4/5] lg:aspect-[3/4] rounded-sm overflow-hidden bg-stone-200">
-            <img
-              src="https://images.unsplash.com/photo-1558171813-4c088753af8f?w=1200&h=1600&fit=crop"
-              alt="Fashion hero"
-              className="absolute inset-0 w-full h-full object-cover"
-            />
+            {settings?.heroMediaType === "video" && settings?.heroMediaUrl ? (
+              <video
+                src={settings.heroMediaUrl}
+                className="absolute inset-0 w-full h-full object-cover"
+                autoPlay
+                loop
+                muted
+                playsInline
+              />
+            ) : (
+              <img
+                src={settings?.heroMediaUrl || "https://images.unsplash.com/photo-1558171813-4c088753af8f?w=1200&h=1600&fit=crop"}
+                alt="Fashion hero"
+                className="absolute inset-0 w-full h-full object-cover"
+              />
+            )}
+            {settings?.heroPromoText && (
+              <span className="absolute top-4 left-4 bg-abby-gold text-abby-black text-sm font-bold px-4 py-2 rounded-sm shadow-md">
+                {settings.heroPromoText}
+              </span>
+            )}
           </div>
         </div>
       </section>

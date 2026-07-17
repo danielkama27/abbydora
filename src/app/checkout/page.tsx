@@ -27,6 +27,9 @@ export default function OrderPage() {
   const [freeShippingThreshold, setFreeShippingThreshold] = useState(200);
   const [paymentMethod] = useState<"mpesa">("mpesa");
   const [mpesaPhone, setMpesaPhone] = useState("");
+  const [discountCodeInput, setDiscountCodeInput] = useState("");
+  const [appliedDiscount, setAppliedDiscount] = useState<{ code: string; discountAmount: number } | null>(null);
+  const [applyingDiscount, setApplyingDiscount] = useState(false);
   const [awaitingMpesa, setAwaitingMpesa] = useState(false);
   const [placedOrderId, setPlacedOrderId] = useState<string | null>(null);
   const [paymentStatus, setPaymentStatus] = useState<string | null>(null);
@@ -68,7 +71,28 @@ export default function OrderPage() {
   }, [awaitingMpesa, placedOrderId]);
 
   const shipping = subtotal >= freeShippingThreshold ? 0 : shippingRate;
-  const total = subtotal + shipping;
+  const discountAmount = appliedDiscount?.discountAmount || 0;
+  const total = Math.max(0, subtotal + shipping - discountAmount);
+
+  async function handleApplyDiscount() {
+    if (!discountCodeInput.trim()) return;
+    setApplyingDiscount(true);
+    try {
+      const res = await fetch("/api/discounts/validate", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ code: discountCodeInput, subtotal }),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || "Invalid code");
+      setAppliedDiscount({ code: data.code, discountAmount: data.discountAmount });
+      toast.success(`Code ${data.code} applied!`);
+    } catch (err: any) {
+      toast.error(err?.message || "Invalid code");
+    } finally {
+      setApplyingDiscount(false);
+    }
+  }
 
   const requiredFieldsFilled =
     form.email.trim() && form.firstName.trim() && form.lastName.trim() &&
@@ -90,6 +114,7 @@ export default function OrderPage() {
         shippingAddress: `${form.address}, ${form.city}, ${form.country} ${form.postalCode}`,
         paymentMethod,
         mpesaPhone: paymentMethod === "mpesa" ? mpesaPhone : undefined,
+        discountCode: appliedDiscount?.code,
       };
       let res = await fetch("/api/orders", {
         method: "POST",
@@ -293,9 +318,36 @@ export default function OrderPage() {
                 </div>
               ))}
             </div>
+
+            <div className="border-t border-stone-100 pt-4 pb-1">
+              {appliedDiscount ? (
+                <div className="flex items-center justify-between text-sm bg-green-50 text-green-700 px-3 py-2 rounded-sm">
+                  <span>Code <strong>{appliedDiscount.code}</strong> applied</span>
+                  <button onClick={() => { setAppliedDiscount(null); setDiscountCodeInput(""); }} className="text-xs underline">
+                    Remove
+                  </button>
+                </div>
+              ) : (
+                <div className="flex gap-2">
+                  <Input
+                    value={discountCodeInput}
+                    onChange={(e) => setDiscountCodeInput(e.target.value.toUpperCase())}
+                    placeholder="Discount code"
+                    className="rounded-none flex-1"
+                  />
+                  <Button type="button" variant="outline" className="rounded-none" onClick={handleApplyDiscount} disabled={applyingDiscount}>
+                    {applyingDiscount ? "..." : "Apply"}
+                  </Button>
+                </div>
+              )}
+            </div>
+
             <div className="border-t border-stone-100 pt-4 space-y-2 text-sm">
               <div className="flex justify-between text-stone-500"><span>Subtotal</span><span>{formatPrice(subtotal)}</span></div>
               <div className="flex justify-between text-stone-500"><span>Shipping</span><span>{shipping === 0 ? "Free" : formatPrice(shipping)}</span></div>
+              {appliedDiscount && (
+                <div className="flex justify-between text-green-600"><span>Discount</span><span>-{formatPrice(discountAmount)}</span></div>
+              )}
               <div className="flex justify-between font-medium text-stone-900 text-base pt-2"><span>Total</span><span>{formatPrice(total)}</span></div>
             </div>
           </div>

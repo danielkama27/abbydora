@@ -2,12 +2,22 @@
 
 import Link from "next/link";
 import { useEffect, useState } from "react";
-import { Instagram, Twitter, Facebook, Mail, MapPin, Phone, Clock } from "lucide-react";
+import { Instagram, Twitter, Facebook, Youtube, Linkedin, MessageCircle, Mail, MapPin, Phone, Clock } from "lucide-react";
 
 interface FooterSettings {
   instagramUrl?: string | null;
   twitterUrl?: string | null;
   facebookUrl?: string | null;
+  tiktokUrl?: string | null;
+  youtubeUrl?: string | null;
+  linkedinUrl?: string | null;
+  pinterestUrl?: string | null;
+  whatsappNumber?: string | null;
+}
+
+function whatsappLink(number: string): string {
+  const digits = number.replace(/[^\d]/g, "");
+  return `https://wa.me/${digits}`;
 }
 
 export function Footer() {
@@ -32,7 +42,7 @@ export function Footer() {
             <p className="text-sm text-abby-off-white/50 leading-relaxed">
               Heritage luxury fashion redefined. Crafted with precision, worn with pride.
             </p>
-            <div className="flex gap-4">
+            <div className="flex flex-wrap gap-4">
               {settings.instagramUrl && (
                 <a href={settings.instagramUrl} target="_blank" rel="noopener noreferrer" className="text-abby-off-white/50 hover:text-abby-gold transition-colors">
                   <Instagram className="w-5 h-5" />
@@ -48,7 +58,36 @@ export function Footer() {
                   <Facebook className="w-5 h-5" />
                 </a>
               )}
+              {settings.youtubeUrl && (
+                <a href={settings.youtubeUrl} target="_blank" rel="noopener noreferrer" className="text-abby-off-white/50 hover:text-abby-gold transition-colors">
+                  <Youtube className="w-5 h-5" />
+                </a>
+              )}
+              {settings.linkedinUrl && (
+                <a href={settings.linkedinUrl} target="_blank" rel="noopener noreferrer" className="text-abby-off-white/50 hover:text-abby-gold transition-colors">
+                  <Linkedin className="w-5 h-5" />
+                </a>
+              )}
+              {settings.whatsappNumber && (
+                <a href={whatsappLink(settings.whatsappNumber)} target="_blank" rel="noopener noreferrer" className="text-abby-off-white/50 hover:text-abby-gold transition-colors">
+                  <MessageCircle className="w-5 h-5" />
+                </a>
+              )}
             </div>
+            {(settings.tiktokUrl || settings.pinterestUrl) && (
+              <div className="flex gap-4 text-xs">
+                {settings.tiktokUrl && (
+                  <a href={settings.tiktokUrl} target="_blank" rel="noopener noreferrer" className="text-abby-off-white/50 hover:text-abby-gold transition-colors">
+                    TikTok
+                  </a>
+                )}
+                {settings.pinterestUrl && (
+                  <a href={settings.pinterestUrl} target="_blank" rel="noopener noreferrer" className="text-abby-off-white/50 hover:text-abby-gold transition-colors">
+                    Pinterest
+                  </a>
+                )}
+              </div>
+            )}
           </div>
 
           {/* Quick Links */}
@@ -111,6 +150,14 @@ export function Footer() {
                 <Clock className="w-4 h-4 text-abby-gold" />
                 Open 6:00 AM – 8:00 PM GMT
               </li>
+              {settings.whatsappNumber && (
+                <li className="flex items-center gap-2 text-sm text-abby-off-white/50">
+                  <MessageCircle className="w-4 h-4 text-abby-gold" />
+                  <a href={whatsappLink(settings.whatsappNumber)} target="_blank" rel="noopener noreferrer" className="hover:text-abby-gold transition-colors">
+                    {settings.whatsappNumber}
+                  </a>
+                </li>
+              )}
             </ul>
           </div>
         </div>
