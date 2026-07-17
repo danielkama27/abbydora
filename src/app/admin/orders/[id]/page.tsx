@@ -31,6 +31,15 @@ export default function AdminOrderDetail() {
     setOrder({ ...order, status });
   };
 
+  const updatePaymentStatus = async (paymentStatus: string) => {
+    await fetch(`/api/orders/${params.id}`, {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ paymentStatus }),
+    });
+    setOrder({ ...order, paymentStatus });
+  };
+
   if (loading) {
     return (
       <div className="flex items-center justify-center h-64">
@@ -147,12 +156,21 @@ export default function AdminOrderDetail() {
               {order.shippingAddress && (
                 <p className="text-sm text-abby-black"><span className="font-semibold">Deliver to:</span> {order.shippingAddress}</p>
               )}
-              <p className="text-sm text-abby-black"><span className="font-semibold">Payment:</span> {order.paymentMethod === "mpesa" ? "M-Pesa" : "Cash"}
-                <span className={`ml-2 inline-flex px-2 py-0.5 text-xs font-semibold rounded-sm ${
-                  order.paymentStatus === "paid" ? "bg-green-100 text-green-700" :
-                  order.paymentStatus === "failed" ? "bg-red-100 text-red-700" :
-                  "bg-yellow-100 text-yellow-700"
-                }`}>{order.paymentStatus}</span>
+              <p className="text-sm text-abby-black flex items-center gap-2">
+                <span className="font-semibold">Payment:</span> {order.paymentMethod === "mpesa" ? "M-Pesa" : "Cash"}
+                <select
+                  value={order.paymentStatus}
+                  onChange={(e) => updatePaymentStatus(e.target.value)}
+                  className={`ml-1 text-xs font-semibold rounded-sm border-0 px-2 py-0.5 ${
+                    order.paymentStatus === "paid" ? "bg-green-100 text-green-700" :
+                    order.paymentStatus === "failed" ? "bg-red-100 text-red-700" :
+                    "bg-yellow-100 text-yellow-700"
+                  }`}
+                >
+                  <option value="pending">pending</option>
+                  <option value="paid">paid</option>
+                  <option value="failed">failed</option>
+                </select>
               </p>
               {order.mpesaReceiptNumber && (
                 <p className="text-sm text-abby-black"><span className="font-semibold">M-Pesa Receipt:</span> {order.mpesaReceiptNumber}</p>

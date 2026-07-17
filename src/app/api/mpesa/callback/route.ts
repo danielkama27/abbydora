@@ -24,6 +24,15 @@ export async function POST(request: Request) {
       return NextResponse.json({ ResultCode: 0, ResultDesc: "Order not found, acknowledged" });
     }
 
+    // Safaricom can call this URL more than once for the same payment
+    // (retries, duplicate confirmations — especially common in sandbox).
+    // Once an order is genuinely marked paid, never let a later callback
+    // downgrade it — that would incorrectly flip a successful payment to
+    // "failed" if a stale/duplicate callback arrives after the real one.
+    if (order.paymentStatus === "paid") {
+      return NextResponse.json({ ResultCode: 0, ResultDesc: "Already recorded as paid, ignored" });
+    }
+
     if (resultCode === 0) {
       // Payment succeeded — pull the M-Pesa receipt number out of the callback metadata.
       const items = callback.CallbackMetadata?.Item || [];

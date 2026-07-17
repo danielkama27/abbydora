@@ -35,8 +35,14 @@ export async function PUT(request: Request, { params }: { params: { id: string }
   }
 
   try {
-    const { status } = await request.json();
-    const order = await prisma.order.update({ where: { id: params.id }, data: { status } });
+    const { status, paymentStatus } = await request.json();
+    const order = await prisma.order.update({
+      where: { id: params.id },
+      data: {
+        ...(status !== undefined && { status }),
+        ...(paymentStatus !== undefined && { paymentStatus }),
+      },
+    });
     return NextResponse.json(order);
   } catch (err: any) {
     console.error("Order PUT error:", err);
