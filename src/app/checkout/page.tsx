@@ -25,7 +25,7 @@ export default function OrderPage() {
   const [placed, setPlaced] = useState(false);
   const [shippingRate, setShippingRate] = useState(15);
   const [freeShippingThreshold, setFreeShippingThreshold] = useState(200);
-  const [paymentMethod, setPaymentMethod] = useState<"cash" | "mpesa">("cash");
+  const [paymentMethod] = useState<"mpesa">("mpesa");
   const [mpesaPhone, setMpesaPhone] = useState("");
   const [awaitingMpesa, setAwaitingMpesa] = useState(false);
   const [placedOrderId, setPlacedOrderId] = useState<string | null>(null);
@@ -243,38 +243,16 @@ export default function OrderPage() {
           </div>
 
           <div className="border border-stone-100 p-6">
-            <h2 className="font-medium text-stone-900 mb-4">Payment Method</h2>
-            <div className="space-y-3">
-              <label className="flex items-center gap-3 cursor-pointer">
-                <input
-                  type="radio"
-                  name="paymentMethod"
-                  checked={paymentMethod === "cash"}
-                  onChange={() => setPaymentMethod("cash")}
-                />
-                <span className="text-sm text-stone-700">Cash on Delivery</span>
-              </label>
-              <label className="flex items-center gap-3 cursor-pointer">
-                <input
-                  type="radio"
-                  name="paymentMethod"
-                  checked={paymentMethod === "mpesa"}
-                  onChange={() => setPaymentMethod("mpesa")}
-                />
-                <span className="text-sm text-stone-700">Pay with M-Pesa</span>
-              </label>
-              {paymentMethod === "mpesa" && (
-                <div className="pl-7 pt-2">
-                  <Label className="text-xs text-stone-500">M-Pesa Phone Number *</Label>
-                  <Input
-                    value={mpesaPhone}
-                    onChange={(e) => setMpesaPhone(e.target.value)}
-                    placeholder="07XX XXX XXX"
-                    className="rounded-none mt-1 max-w-xs"
-                  />
-                  <p className="text-xs text-stone-400 mt-1">You'll get a payment prompt on this number to enter your PIN.</p>
-                </div>
-              )}
+            <h2 className="font-medium text-stone-900 mb-4">Payment — M-Pesa</h2>
+            <div>
+              <Label className="text-xs text-stone-500">M-Pesa Phone Number *</Label>
+              <Input
+                value={mpesaPhone}
+                onChange={(e) => setMpesaPhone(e.target.value)}
+                placeholder="07XX XXX XXX"
+                className="rounded-none mt-1 max-w-xs"
+              />
+              <p className="text-xs text-stone-400 mt-1">You'll get a payment prompt on this number to enter your PIN.</p>
             </div>
           </div>
 
