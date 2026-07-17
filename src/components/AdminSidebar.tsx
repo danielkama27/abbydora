@@ -12,6 +12,7 @@ import {
   Megaphone,
   Settings,
   Layers,
+  Store,
   LogOut,
 } from "lucide-react";
 
@@ -20,6 +21,7 @@ import { toast } from "sonner";
 
 const navItems = [
   { icon: LayoutDashboard, label: "Dashboard", href: "/admin" },
+  { icon: Store, label: "Point of Sale", href: "/admin/pos" },
   { icon: ShoppingBag, label: "Products", href: "/admin/products" },
   { icon: Layers, label: "Featured & Collections", href: "/admin/featured" },
   { icon: Users, label: "Customers", href: "/admin/users" },

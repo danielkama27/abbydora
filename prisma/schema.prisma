@@ -111,15 +111,23 @@ model Contact {
 }
 
 model Order {
-  id              String      @id @default(cuid())
-  userId          String
-  total           Float
-  status          String      @default("pending")
-  shippingAddress String?
-  user            User        @relation(fields: [userId], references: [id], onDelete: Cascade)
-  items           OrderItem[]
-  createdAt       DateTime    @default(now())
-  updatedAt       DateTime    @updatedAt
+  id                     String      @id @default(cuid())
+  userId                 String?
+  total                  Float
+  status                 String      @default("pending")
+  shippingAddress        String?
+  channel                String      @default("online") // "online" or "pos"
+  paymentMethod          String?     // "mpesa" or "cash" or "card"
+  paymentStatus          String      @default("pending") // "pending", "paid", "failed"
+  mpesaCheckoutRequestId String?
+  mpesaReceiptNumber     String?
+  mpesaPhone             String?
+  guestName              String?     // for POS walk-in sales without an account
+  guestPhone             String?
+  user                   User?       @relation(fields: [userId], references: [id], onDelete: Cascade)
+  items                  OrderItem[]
+  createdAt              DateTime    @default(now())
+  updatedAt              DateTime    @updatedAt
 }
 
 model CartItem {

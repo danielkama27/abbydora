@@ -8,9 +8,11 @@ interface AdminOrder {
   id: string;
   total: number;
   status: string;
+  channel: string;
+  guestName: string | null;
   createdAt: string;
   items: { id: string }[];
-  user: { name: string | null; email: string | null };
+  user: { name: string | null; email: string | null } | null;
 }
 
 const statusStyle: Record<string, string> = {
@@ -41,6 +43,7 @@ export default function AdminOrdersPage() {
             <thead>
               <tr className="text-left text-stone-400 border-b border-stone-100">
                 <th className="pb-3 pl-6 font-normal">Order ID</th>
+                <th className="pb-3 font-normal">Channel</th>
                 <th className="pb-3 font-normal">Customer</th>
                 <th className="pb-3 font-normal">Items</th>
                 <th className="pb-3 font-normal">Total</th>
@@ -50,10 +53,10 @@ export default function AdminOrdersPage() {
             </thead>
             <tbody>
               {loading && (
-                <tr><td colSpan={6} className="py-8 text-center text-stone-400">Loading...</td></tr>
+                <tr><td colSpan={7} className="py-8 text-center text-stone-400">Loading...</td></tr>
               )}
               {!loading && orders.length === 0 && (
-                <tr><td colSpan={6} className="py-8 text-center text-stone-400">No orders yet.</td></tr>
+                <tr><td colSpan={7} className="py-8 text-center text-stone-400">No orders yet.</td></tr>
               )}
               {orders.map((o) => (
                 <tr key={o.id} className="border-b border-stone-50 last:border-0">
@@ -63,7 +66,12 @@ export default function AdminOrdersPage() {
                     </Link>
                   </td>
                   <td className="py-3">
-                    <p className="text-stone-900">{o.user?.name || "—"}</p>
+                    <span className={`text-xs px-2 py-0.5 rounded-sm ${o.channel === "pos" ? "bg-purple-50 text-purple-600" : "bg-blue-50 text-blue-600"}`}>
+                      {o.channel === "pos" ? "In-Store" : "Online"}
+                    </span>
+                  </td>
+                  <td className="py-3">
+                    <p className="text-stone-900">{o.user?.name || o.guestName || "Walk-in customer"}</p>
                     <p className="text-xs text-stone-400">{o.user?.email}</p>
                   </td>
                   <td className="py-3">{o.items.length}</td>

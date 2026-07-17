@@ -32,10 +32,15 @@ export default function AdminDashboardPage() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    fetch("/api/admin/stats")
-      .then((r) => r.json())
-      .then(setData)
-      .finally(() => setLoading(false));
+    const load = () => {
+      fetch("/api/admin/stats")
+        .then((r) => r.json())
+        .then(setData)
+        .finally(() => setLoading(false));
+    };
+    load();
+    const interval = setInterval(load, 30_000); // keep the dashboard live without a manual refresh
+    return () => clearInterval(interval);
   }, []);
 
   const conversion =
@@ -52,7 +57,13 @@ export default function AdminDashboardPage() {
 
   return (
     <div className="space-y-6">
-      <h1 className="font-serif text-2xl font-medium text-stone-900">Dashboard</h1>
+      <div className="flex items-center justify-between">
+        <h1 className="font-serif text-2xl font-medium text-stone-900">Dashboard</h1>
+        <span className="text-sm text-stone-500 flex items-center gap-2">
+          <span className="w-2 h-2 rounded-full bg-green-500 animate-pulse" />
+          Live
+        </span>
+      </div>
       <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-4">
         {stats.map((s, i) => (
           <div key={i} className="bg-white border border-stone-100 p-6">

@@ -9,7 +9,10 @@ export async function GET(request: Request, { params }: { params: { id: string }
   try {
     const order = await prisma.order.findUnique({
       where: { id: params.id },
-      include: { items: { include: { product: true } } },
+      include: {
+        items: { include: { product: true } },
+        user: { select: { id: true, name: true, email: true, createdAt: true } },
+      },
     });
     if (!order) return NextResponse.json({ error: "Not found" }, { status: 404 });
 

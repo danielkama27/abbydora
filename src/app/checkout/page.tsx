@@ -25,6 +25,11 @@ export default function OrderPage() {
   const [placed, setPlaced] = useState(false);
   const [shippingRate, setShippingRate] = useState(15);
   const [freeShippingThreshold, setFreeShippingThreshold] = useState(200);
+  const [paymentMethod, setPaymentMethod] = useState<"cash" | "mpesa">("cash");
+  const [mpesaPhone, setMpesaPhone] = useState("");
+  const [awaitingMpesa, setAwaitingMpesa] = useState(false);
+  const [placedOrderId, setPlacedOrderId] = useState<string | null>(null);
+  const [paymentStatus, setPaymentStatus] = useState<string | null>(null);
   const [form, setForm] = useState({
     email: "", firstName: "", lastName: "", address: "", city: "", country: "", postalCode: "", phone: "",
   });
@@ -39,6 +44,29 @@ export default function OrderPage() {
       .catch(() => {});
   }, []);
 
+  // While waiting on an M-Pesa payment, poll the order every few seconds to
+  // see whether the customer has completed (or cancelled) the prompt on
+  // their phone yet.
+  useEffect(() => {
+    if (!awaitingMpesa || !placedOrderId) return;
+    const interval = setInterval(async () => {
+      try {
+        const res = await fetch(`/api/orders/${placedOrderId}`);
+        if (!res.ok) return;
+        const data = await res.json();
+        if (data.paymentStatus === "paid") {
+          setPaymentStatus("paid");
+          setAwaitingMpesa(false);
+          setPlaced(true);
+        } else if (data.paymentStatus === "failed") {
+          setPaymentStatus("failed");
+          setAwaitingMpesa(false);
+        }
+      } catch {}
+    }, 3000);
+    return () => clearInterval(interval);
+  }, [awaitingMpesa, placedOrderId]);
+
   const shipping = subtotal >= freeShippingThreshold ? 0 : shippingRate;
   const total = subtotal + shipping;
 
@@ -51,32 +79,50 @@ export default function OrderPage() {
       toast.error("Please fill in your contact and shipping details first.");
       return;
     }
+    if (paymentMethod === "mpesa" && !mpesaPhone.trim()) {
+      toast.error("Please enter the M-Pesa phone number to pay from.");
+      return;
+    }
 
     setPlacing(true);
     try {
+      const payload = {
+        shippingAddress: `${form.address}, ${form.city}, ${form.country} ${form.postalCode}`,
+        paymentMethod,
+        mpesaPhone: paymentMethod === "mpesa" ? mpesaPhone : undefined,
+      };
       let res = await fetch("/api/orders", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          shippingAddress: `${form.address}, ${form.city}, ${form.country} ${form.postalCode}`,
-        }),
+        body: JSON.stringify(payload),
       });
       if (res.status === 405) {
         // Some hosting setups occasionally block one HTTP method — retry with PUT as a fallback.
         res = await fetch("/api/orders", {
           method: "PUT",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            shippingAddress: `${form.address}, ${form.city}, ${form.country} ${form.postalCode}`,
-          }),
+          body: JSON.stringify(payload),
         });
       }
       const data = await res.json().catch(() => ({}));
       if (!res.ok) {
         throw new Error(data.error || "Failed to place order");
       }
+
+      if (data.mpesaError) {
+        toast.error(data.mpesaError);
+      }
+
+      const order = data.order || data;
       await refreshCart();
-      setPlaced(true);
+
+      if (paymentMethod === "mpesa" && !data.mpesaError) {
+        setPlacedOrderId(order.id);
+        setAwaitingMpesa(true);
+        toast.success("Check your phone to complete the M-Pesa payment.");
+      } else {
+        setPlaced(true);
+      }
     } catch (err: any) {
       toast.error(err?.message || "Could not place your order. Please try again.");
     } finally {
@@ -91,6 +137,24 @@ export default function OrderPage() {
     return (
       <div className="max-w-7xl mx-auto px-4 py-32 flex justify-center">
         <Loader2 className="h-6 w-6 animate-spin text-stone-400" />
+      </div>
+    );
+  }
+
+  if (awaitingMpesa) {
+    return (
+      <div className="max-w-xl mx-auto px-4 py-20 text-center">
+        <Loader2 className="h-10 w-10 animate-spin text-stone-400 mx-auto mb-6" />
+        <h1 className="font-serif text-2xl font-medium text-stone-900 mb-2">Check Your Phone</h1>
+        <p className="text-stone-500 mb-2">
+          An M-Pesa payment prompt was sent to <strong>{mpesaPhone}</strong>. Enter your M-Pesa PIN to complete the payment.
+        </p>
+        <p className="text-sm text-stone-400">This page will update automatically once payment is confirmed.</p>
+        {paymentStatus === "failed" && (
+          <p className="text-sm text-red-600 mt-4">
+            The payment didn't go through (cancelled or timed out). Your order is saved — you can try paying again or contact us.
+          </p>
+        )}
       </div>
     );
   }
@@ -175,6 +239,42 @@ export default function OrderPage() {
                 <Label className="text-xs text-stone-500">Phone</Label>
                 <Input value={form.phone} onChange={(e) => setForm({ ...form, phone: e.target.value })} className="rounded-none mt-1" />
               </div>
+            </div>
+          </div>
+
+          <div className="border border-stone-100 p-6">
+            <h2 className="font-medium text-stone-900 mb-4">Payment Method</h2>
+            <div className="space-y-3">
+              <label className="flex items-center gap-3 cursor-pointer">
+                <input
+                  type="radio"
+                  name="paymentMethod"
+                  checked={paymentMethod === "cash"}
+                  onChange={() => setPaymentMethod("cash")}
+                />
+                <span className="text-sm text-stone-700">Cash on Delivery</span>
+              </label>
+              <label className="flex items-center gap-3 cursor-pointer">
+                <input
+                  type="radio"
+                  name="paymentMethod"
+                  checked={paymentMethod === "mpesa"}
+                  onChange={() => setPaymentMethod("mpesa")}
+                />
+                <span className="text-sm text-stone-700">Pay with M-Pesa</span>
+              </label>
+              {paymentMethod === "mpesa" && (
+                <div className="pl-7 pt-2">
+                  <Label className="text-xs text-stone-500">M-Pesa Phone Number *</Label>
+                  <Input
+                    value={mpesaPhone}
+                    onChange={(e) => setMpesaPhone(e.target.value)}
+                    placeholder="07XX XXX XXX"
+                    className="rounded-none mt-1 max-w-xs"
+                  />
+                  <p className="text-xs text-stone-400 mt-1">You'll get a payment prompt on this number to enter your PIN.</p>
+                </div>
+              )}
             </div>
           </div>
 

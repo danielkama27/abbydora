@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { checkSession } from "@/lib/session-helpers";
+import { initiateStkPush } from "@/lib/mpesa";
 
 // Customer-facing: only ever returns the signed-in user's own orders.
 export async function GET() {
@@ -46,7 +47,7 @@ async function placeOrder(request: Request) {
 
   try {
     const body = await request.json();
-    const { shippingAddress } = body;
+    const { shippingAddress, paymentMethod, mpesaPhone } = body;
 
     // Always build the order from the user's actual server-side cart —
     // never trust prices/items the client claims, and never trust a
@@ -91,6 +92,9 @@ async function placeOrder(request: Request) {
           total,
           status: "pending",
           shippingAddress: shippingAddress || null,
+          paymentMethod: paymentMethod || "cash",
+          paymentStatus: "pending",
+          mpesaPhone: paymentMethod === "mpesa" ? mpesaPhone : null,
           items: {
             createMany: {
               data: cartItems.map((item) => ({
@@ -132,6 +136,30 @@ async function placeOrder(request: Request) {
 
       return created;
     });
+
+    // If paying by M-Pesa, trigger the payment prompt now that the order exists.
+    // If this fails (e.g. M-Pesa not configured yet), the order still stands —
+    // it's just left as an unpaid cash-equivalent order the admin can follow up on.
+    if (paymentMethod === "mpesa" && mpesaPhone) {
+      try {
+        const stk = await initiateStkPush({
+          phone: mpesaPhone,
+          amount: total,
+          accountReference: order.id.slice(0, 12).toUpperCase(),
+          transactionDesc: "AbbyDora order",
+        });
+        await prisma.order.update({
+          where: { id: order.id },
+          data: { mpesaCheckoutRequestId: stk.checkoutRequestId },
+        });
+      } catch (mpesaErr: any) {
+        console.error("M-Pesa STK push failed:", mpesaErr);
+        return NextResponse.json(
+          { order, mpesaError: mpesaErr?.message || "Could not start M-Pesa payment. Your order was saved — please contact us to arrange payment." },
+          { status: 201 }
+        );
+      }
+    }
 
     return NextResponse.json(order, { status: 201 });
   } catch (err: any) {
