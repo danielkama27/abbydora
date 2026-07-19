@@ -40,7 +40,7 @@ async function updateSettings(request: Request) {
       freeShippingThreshold, shippingRate,
       instagramUrl, twitterUrl, facebookUrl,
       tiktokUrl, youtubeUrl, linkedinUrl, pinterestUrl, whatsappNumber,
-      heroMediaUrl, heroMediaType, heroPromoText,
+      heroMediaUrl, heroMediaType, heroPromoText, detailImageUrl,
     } = body;
 
     await getOrCreateSettings();
@@ -60,6 +60,7 @@ async function updateSettings(request: Request) {
         ...(heroMediaUrl !== undefined && { heroMediaUrl: heroMediaUrl || null }),
         ...(heroMediaType !== undefined && { heroMediaType: heroMediaType || null }),
         ...(heroPromoText !== undefined && { heroPromoText: heroPromoText || null }),
+        ...(detailImageUrl !== undefined && { detailImageUrl: detailImageUrl || null }),
       },
     });
     return NextResponse.json(updated);

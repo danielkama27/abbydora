@@ -40,7 +40,7 @@ export function Footer() {
               ABBYDORA
             </h3>
             <p className="text-sm text-abby-off-white/50 leading-relaxed">
-              Heritage luxury fashion redefined. Crafted with precision, worn with pride.
+              Excellentia et traditio. An old-world tailor's atelier for the modern streetwear crowd.
             </p>
             <div className="flex flex-wrap gap-4">
               {settings.instagramUrl && (
@@ -92,7 +92,7 @@ export function Footer() {
 
           {/* Quick Links */}
           <div>
-            <h4 className="font-serif text-lg font-semibold text-abby-off-white mb-4">
+            <h4 className="font-serif text-lg font-semibold text-abby-slate-blue mb-4">
               Explore
             </h4>
             <ul className="space-y-2">
@@ -111,7 +111,7 @@ export function Footer() {
 
           {/* Collections */}
           <div>
-            <h4 className="font-serif text-lg font-semibold text-abby-off-white mb-4">
+            <h4 className="font-serif text-lg font-semibold text-abby-gold mb-4">
               Collections
             </h4>
             <ul className="space-y-2">
@@ -162,9 +162,12 @@ export function Footer() {
           </div>
         </div>
 
-        <div className="mt-12 pt-8 border-t border-white/10 text-center">
+        <div className="mt-12 pt-8 border-t border-white/10 flex flex-col sm:flex-row items-center justify-between gap-2">
           <p className="text-xs text-abby-off-white/30">
-            &copy; {new Date().getFullYear()} ABBYDORA. All rights reserved. Heritage Luxury Fashion.
+            &copy; {new Date().getFullYear()} ABBYDORA. All rights reserved.
+          </p>
+          <p className="text-xs text-abby-off-white/30 tracking-widest uppercase">
+            Sophisticated. Structural. Timeless.
           </p>
         </div>
       </div>

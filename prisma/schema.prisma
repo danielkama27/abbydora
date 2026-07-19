@@ -107,6 +107,7 @@ model Settings {
   heroMediaUrl           String?
   heroMediaType          String?  // "image" or "video"
   heroPromoText          String?  // e.g. "20% OFF" shown as a badge over the hero
+  detailImageUrl         String?  // "The Detail is The Design" section image
   updatedAt              DateTime @updatedAt
 }
 

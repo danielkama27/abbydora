@@ -37,9 +37,9 @@ export function NewsletterForm() {
         onChange={(e) => setEmail(e.target.value)}
         placeholder="Enter your email"
         required
-        className="flex-1 h-12 px-4 bg-white border border-stone-200 rounded-none text-sm focus:outline-none focus:border-stone-400"
+        className="flex-1 h-12 px-4 bg-white border border-abby-stone rounded-none text-sm focus:outline-none focus:border-abby-black"
       />
-      <Button type="submit" disabled={loading} className="rounded-none bg-stone-900 hover:bg-stone-800 text-white h-12 px-6">
+      <Button type="submit" disabled={loading} className="rounded-none bg-abby-black hover:bg-abby-black-soft text-abby-off-white h-12 px-6">
         {loading ? "..." : "Subscribe"}
       </Button>
     </form>

@@ -8,10 +8,13 @@ export default function HeroMarketingPage() {
   const [mediaUrl, setMediaUrl] = useState("");
   const [mediaType, setMediaType] = useState<"image" | "video" | "">("");
   const [promoText, setPromoText] = useState("");
+  const [detailImageUrl, setDetailImageUrl] = useState("");
   const [uploading, setUploading] = useState(false);
+  const [uploadingDetail, setUploadingDetail] = useState(false);
   const [saving, setSaving] = useState(false);
   const [loading, setLoading] = useState(true);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const detailFileInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     fetch("/api/settings")
@@ -20,6 +23,7 @@ export default function HeroMarketingPage() {
         setMediaUrl(data.heroMediaUrl || "");
         setMediaType(data.heroMediaType || "");
         setPromoText(data.heroPromoText || "");
+        setDetailImageUrl(data.detailImageUrl || "");
       })
       .finally(() => setLoading(false));
   }, []);
@@ -46,23 +50,44 @@ export default function HeroMarketingPage() {
     }
   }
 
+  async function handleDetailFileSelect(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    setUploadingDetail(true);
+    try {
+      const formData = new FormData();
+      formData.append("file", file);
+      formData.append("folder", "detail-section");
+      const res = await fetch("/api/admin/upload", { method: "POST", body: formData });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || "Upload failed");
+      setDetailImageUrl(data.url);
+    } catch (err: any) {
+      toast.error(err?.message || "Upload failed");
+    } finally {
+      setUploadingDetail(false);
+      if (detailFileInputRef.current) detailFileInputRef.current.value = "";
+    }
+  }
+
   async function handleSave() {
     setSaving(true);
     try {
       let res = await fetch("/api/settings", {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ heroMediaUrl: mediaUrl, heroMediaType: mediaType, heroPromoText: promoText }),
+        body: JSON.stringify({ heroMediaUrl: mediaUrl, heroMediaType: mediaType, heroPromoText: promoText, detailImageUrl }),
       });
       if (res.status === 405) {
         res = await fetch("/api/settings", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ heroMediaUrl: mediaUrl, heroMediaType: mediaType, heroPromoText: promoText }),
+          body: JSON.stringify({ heroMediaUrl: mediaUrl, heroMediaType: mediaType, heroPromoText: promoText, detailImageUrl }),
         });
       }
       if (!res.ok) throw new Error("Failed to save");
-      toast.success("Homepage hero updated.");
+      toast.success("Homepage updated.");
     } catch (err: any) {
       toast.error(err?.message || "Failed to save");
     } finally {
@@ -79,9 +104,9 @@ export default function HeroMarketingPage() {
 
   return (
     <div className="max-w-2xl">
-      <h1 className="font-serif text-3xl font-bold text-abby-black mb-2">Homepage Hero</h1>
+      <h1 className="font-serif text-3xl font-bold text-abby-black mb-2">Homepage Images</h1>
       <p className="text-sm text-abby-black/50 mb-8">
-        The main image or video shown at the top of your homepage, with an optional promo badge (e.g. "20% OFF").
+        The main hero at the top of your homepage, and the packaging/detail image further down the page.
       </p>
 
       <div className="bg-white rounded-sm border border-abby-stone p-6 space-y-6">
@@ -143,13 +168,49 @@ export default function HeroMarketingPage() {
           <p className="text-xs text-abby-black/40 mt-1">Shown as a badge over the hero. Leave blank to hide it.</p>
         </div>
 
+        <div className="pt-6 border-t border-abby-stone">
+          <label className="block text-sm font-semibold text-abby-black mb-3">"The Detail Is The Design" Image</label>
+          {detailImageUrl ? (
+            <div className="relative mb-4 rounded-sm overflow-hidden bg-abby-stone aspect-square max-w-xs">
+              <img src={detailImageUrl} alt="" className="w-full h-full object-cover" />
+            </div>
+          ) : (
+            <div className="mb-4 rounded-sm bg-abby-stone aspect-square max-w-xs flex items-center justify-center text-abby-black/30 text-center px-4">
+              No image set yet — uses a default placeholder.
+            </div>
+          )}
+          <input
+            ref={detailFileInputRef}
+            type="file"
+            accept="image/*"
+            className="hidden"
+            onChange={handleDetailFileSelect}
+          />
+          <div className="flex gap-3">
+            <button
+              type="button"
+              onClick={() => detailFileInputRef.current?.click()}
+              disabled={uploadingDetail}
+              className="inline-flex items-center gap-2 px-4 py-2 border border-abby-stone rounded-sm text-sm hover:border-abby-gold transition-colors disabled:opacity-50"
+            >
+              {uploadingDetail ? <Loader2 className="w-4 h-4 animate-spin" /> : <Upload className="w-4 h-4" />}
+              {uploadingDetail ? "Uploading..." : detailImageUrl ? "Replace Image" : "Upload Image"}
+            </button>
+            {detailImageUrl && (
+              <button type="button" onClick={() => setDetailImageUrl("")} className="text-sm text-red-500 hover:underline">
+                Remove
+              </button>
+            )}
+          </div>
+        </div>
+
         <button
           onClick={handleSave}
           disabled={saving}
           className="inline-flex items-center gap-2 bg-abby-black text-abby-off-white px-8 py-3 text-sm font-semibold uppercase tracking-wider hover:bg-abby-black-soft transition-colors disabled:opacity-50"
         >
           <Check className="w-4 h-4" />
-          {saving ? "Saving..." : "Save Hero"}
+          {saving ? "Saving..." : "Save Changes"}
         </button>
       </div>
     </div>
