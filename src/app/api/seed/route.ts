@@ -155,20 +155,30 @@ const seedData = {
   ],
 };
 
+import { auth } from "@/lib/auth";
+
 export async function GET() {
-  await prisma.$transaction([
-    prisma.review.deleteMany(),
-    prisma.wishlist.deleteMany(),
-    prisma.cartItem.deleteMany(),
-    prisma.orderItem.deleteMany(),
-    prisma.order.deleteMany(),
-    prisma.user.deleteMany(),
-    prisma.product.deleteMany(),
-    prisma.collection.deleteMany(),
-  ]);
+  const session = await auth();
+  if (!session?.user || (session.user as any).role !== "admin") {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
+
+  // Safety check: never touch a store that already has real products.
+  // This makes it impossible for this route to ever wipe real data again,
+  // even if it's visited by accident.
+  const existingProductCount = await prisma.product.count();
+  if (existingProductCount > 0) {
+    return NextResponse.json({
+      success: false,
+      message: `Skipped — your store already has ${existingProductCount} product(s). This tool only adds starter data to a completely empty store, and never deletes anything.`,
+    });
+  }
 
   for (const collection of seedData.collections) {
-    await prisma.collection.create({ data: collection });
+    const existing = await prisma.collection.findUnique({ where: { slug: collection.slug } });
+    if (!existing) {
+      await prisma.collection.create({ data: collection });
+    }
   }
 
   const collections = await prisma.collection.findMany();
@@ -193,5 +203,5 @@ export async function GET() {
     });
   }
 
-  return NextResponse.json({ success: true, message: "Database seeded successfully!" });
+  return NextResponse.json({ success: true, message: "Starter products added successfully!" });
 }
