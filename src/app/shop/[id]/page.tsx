@@ -7,6 +7,7 @@ import Link from "next/link";
 import { ProductGrid } from "@/components/ProductGrid";
 import { ProductActions } from "@/components/ProductActions";
 import { ProductGallery } from "@/components/ProductGallery";
+import { ProductReviews } from "@/components/ProductReviews";
 
 async function getProduct(id: string) {
   return prisma.product.findUnique({ where: { id } });
@@ -94,6 +95,8 @@ export default async function ProductPage({ params }: ProductPageProps) {
           </div>
         </div>
       </div>
+
+      <ProductReviews productId={product.id} />
 
       {/* Related Products */}
       {related.length > 0 && (

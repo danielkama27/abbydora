@@ -55,7 +55,7 @@ export function NotificationBell() {
       <button
         onClick={handleOpen}
         aria-label="Announcements"
-        className="relative text-abby-off-white/80 hover:text-abby-gold transition-colors"
+        className="relative text-abby-black hover:text-abby-gold transition-colors"
       >
         <Bell className="w-5 h-5" />
         {hasUnread && (

@@ -161,20 +161,20 @@ export default function OrderPage() {
   if (isLoading) {
     return (
       <div className="max-w-7xl mx-auto px-4 py-32 flex justify-center">
-        <Loader2 className="h-6 w-6 animate-spin text-stone-400" />
+        <Loader2 className="h-6 w-6 animate-spin text-abby-black/40" />
       </div>
     );
   }
 
   if (awaitingMpesa) {
     return (
-      <div className="max-w-xl mx-auto px-4 py-20 text-center">
-        <Loader2 className="h-10 w-10 animate-spin text-stone-400 mx-auto mb-6" />
-        <h1 className="font-serif text-2xl font-medium text-stone-900 mb-2">Check Your Phone</h1>
-        <p className="text-stone-500 mb-2">
+      <div className="max-w-xl mx-auto px-4 py-20 text-center bg-abby-cream min-h-screen flex flex-col justify-center">
+        <Loader2 className="h-10 w-10 animate-spin text-abby-black/40 mx-auto mb-6" />
+        <h1 className="font-serif text-2xl font-medium text-abby-black mb-2">Check Your Phone</h1>
+        <p className="text-abby-black/50 mb-2">
           An M-Pesa payment prompt was sent to <strong>{mpesaPhone}</strong>. Enter your M-Pesa PIN to complete the payment.
         </p>
-        <p className="text-sm text-stone-400">This page will update automatically once payment is confirmed.</p>
+        <p className="text-sm text-abby-black/40">This page will update automatically once payment is confirmed.</p>
         {paymentStatus === "failed" && (
           <p className="text-sm text-red-600 mt-4">
             The payment didn't go through (cancelled or timed out). Your order is saved — you can try paying again or contact us.
@@ -186,14 +186,14 @@ export default function OrderPage() {
 
   if (placed) {
     return (
-      <div className="max-w-xl mx-auto px-4 py-20 text-center">
+      <div className="max-w-xl mx-auto px-4 py-20 text-center bg-abby-cream min-h-screen flex flex-col justify-center">
         <div className="w-16 h-16 bg-green-50 rounded-full flex items-center justify-center mx-auto mb-6">
           <Check className="h-8 w-8 text-green-600" />
         </div>
-        <h1 className="font-serif text-3xl font-medium text-stone-900 mb-2">Order Placed</h1>
-        <p className="text-stone-500 mb-8">Thank you for your order. You'll receive a confirmation shortly.</p>
+        <h1 className="font-serif text-3xl font-medium text-abby-black mb-2">Order Placed</h1>
+        <p className="text-abby-black/50 mb-8">Thank you for your order. You'll receive a confirmation shortly.</p>
         <Link href="/orders">
-          <Button className="rounded-none bg-stone-900 hover:bg-stone-800 text-white">View My Orders</Button>
+          <Button className="rounded-none bg-abby-black hover:bg-abby-black-soft text-white">View My Orders</Button>
         </Link>
       </div>
     );
@@ -201,27 +201,27 @@ export default function OrderPage() {
 
   if (items.length === 0) {
     return (
-      <div className="max-w-7xl mx-auto px-4 py-20 text-center">
-        <h1 className="font-serif text-2xl font-medium text-stone-900 mb-2">Your cart is empty</h1>
+      <div className="max-w-7xl mx-auto px-4 py-20 text-center bg-abby-cream min-h-screen flex flex-col justify-center">
+        <h1 className="font-serif text-2xl font-medium text-abby-black mb-2">Your cart is empty</h1>
         <Link href="/shop"><Button className="rounded-none mt-4">Continue Shopping</Button></Link>
       </div>
     );
   }
 
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-      <Link href="/cart" className="text-sm text-stone-400 hover:text-stone-900 flex items-center gap-1 mb-8">
+    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 bg-abby-cream min-h-screen">
+      <Link href="/cart" className="text-sm text-abby-black/40 hover:text-abby-black flex items-center gap-1 mb-8">
         <ArrowLeft className="h-3 w-3" /> Back to cart
       </Link>
 
-      <h1 className="font-serif text-3xl font-medium text-stone-900 mb-8">Place Your Order</h1>
+      <h1 className="font-serif text-3xl font-medium text-abby-black mb-8">Place Your Order</h1>
 
       <div className="grid lg:grid-cols-3 gap-12">
         <div className="lg:col-span-2 space-y-8">
-          <div className="border border-stone-100 p-6">
-            <h2 className="font-medium text-stone-900 mb-4">Contact Information</h2>
+          <div className="border border-abby-stone p-6">
+            <h2 className="font-medium text-abby-black mb-4">Contact Information</h2>
             <div>
-              <Label className="text-xs text-stone-500">Email *</Label>
+              <Label className="text-xs text-abby-black/50">Email *</Label>
               <Input
                 type="email"
                 value={form.email}
@@ -233,51 +233,51 @@ export default function OrderPage() {
             </div>
           </div>
 
-          <div className="border border-stone-100 p-6">
-            <h2 className="font-medium text-stone-900 mb-4">Shipping Address</h2>
+          <div className="border border-abby-stone p-6">
+            <h2 className="font-medium text-abby-black mb-4">Shipping Address</h2>
             <div className="grid grid-cols-2 gap-4">
               <div>
-                <Label className="text-xs text-stone-500">First Name *</Label>
+                <Label className="text-xs text-abby-black/50">First Name *</Label>
                 <Input value={form.firstName} onChange={(e) => setForm({ ...form, firstName: e.target.value })} className="rounded-none mt-1" required />
               </div>
               <div>
-                <Label className="text-xs text-stone-500">Last Name *</Label>
+                <Label className="text-xs text-abby-black/50">Last Name *</Label>
                 <Input value={form.lastName} onChange={(e) => setForm({ ...form, lastName: e.target.value })} className="rounded-none mt-1" required />
               </div>
               <div className="col-span-2">
-                <Label className="text-xs text-stone-500">Address *</Label>
+                <Label className="text-xs text-abby-black/50">Address *</Label>
                 <Input value={form.address} onChange={(e) => setForm({ ...form, address: e.target.value })} className="rounded-none mt-1" required />
               </div>
               <div>
-                <Label className="text-xs text-stone-500">City *</Label>
+                <Label className="text-xs text-abby-black/50">City *</Label>
                 <Input value={form.city} onChange={(e) => setForm({ ...form, city: e.target.value })} className="rounded-none mt-1" required />
               </div>
               <div>
-                <Label className="text-xs text-stone-500">Postal Code</Label>
+                <Label className="text-xs text-abby-black/50">Postal Code</Label>
                 <Input value={form.postalCode} onChange={(e) => setForm({ ...form, postalCode: e.target.value })} className="rounded-none mt-1" />
               </div>
               <div>
-                <Label className="text-xs text-stone-500">Country *</Label>
+                <Label className="text-xs text-abby-black/50">Country *</Label>
                 <Input value={form.country} onChange={(e) => setForm({ ...form, country: e.target.value })} className="rounded-none mt-1" required />
               </div>
               <div>
-                <Label className="text-xs text-stone-500">Phone</Label>
+                <Label className="text-xs text-abby-black/50">Phone</Label>
                 <Input value={form.phone} onChange={(e) => setForm({ ...form, phone: e.target.value })} className="rounded-none mt-1" />
               </div>
             </div>
           </div>
 
-          <div className="border border-stone-100 p-6">
-            <h2 className="font-medium text-stone-900 mb-4">Payment — M-Pesa</h2>
+          <div className="border border-abby-stone p-6">
+            <h2 className="font-medium text-abby-black mb-4">Payment — M-Pesa</h2>
             <div>
-              <Label className="text-xs text-stone-500">M-Pesa Phone Number *</Label>
+              <Label className="text-xs text-abby-black/50">M-Pesa Phone Number *</Label>
               <Input
                 value={mpesaPhone}
                 onChange={(e) => setMpesaPhone(e.target.value)}
                 placeholder="07XX XXX XXX"
                 className="rounded-none mt-1 max-w-xs"
               />
-              <p className="text-xs text-stone-400 mt-1">You'll get a payment prompt on this number to enter your PIN.</p>
+              <p className="text-xs text-abby-black/40 mt-1">You'll get a payment prompt on this number to enter your PIN.</p>
             </div>
           </div>
 
@@ -285,7 +285,7 @@ export default function OrderPage() {
             type="button"
             onClick={handlePlaceOrder}
             disabled={placing}
-            className="rounded-none h-12 bg-stone-900 hover:bg-stone-800 text-white w-full sm:w-auto px-12"
+            className="rounded-none h-12 bg-abby-black hover:bg-abby-black-soft text-white w-full sm:w-auto px-12"
           >
             {placing ? (
               <span className="flex items-center gap-2">
@@ -298,17 +298,17 @@ export default function OrderPage() {
         </div>
 
         <div className="space-y-6">
-          <div className="border border-stone-100 p-6">
-            <h2 className="font-medium text-stone-900 mb-4">Order Summary</h2>
+          <div className="border border-abby-stone p-6">
+            <h2 className="font-medium text-abby-black mb-4">Order Summary</h2>
             <div className="space-y-3 mb-4">
               {items.map((item) => (
                 <div key={item.id} className="flex gap-3">
-                  <div className="w-12 h-16 bg-stone-100 rounded-sm overflow-hidden flex-shrink-0">
+                  <div className="w-12 h-16 bg-abby-stone rounded-sm overflow-hidden flex-shrink-0">
                     <img src={parseFirstImage(item.product.images)} alt="" className="w-full h-full object-cover" />
                   </div>
                   <div className="flex-1">
-                    <p className="text-sm font-medium text-stone-900">{item.product.name}</p>
-                    <p className="text-xs text-stone-400">
+                    <p className="text-sm font-medium text-abby-black">{item.product.name}</p>
+                    <p className="text-xs text-abby-black/40">
                       Qty: {item.quantity}
                       {(item as any).size && ` · ${(item as any).size}`}
                       {(item as any).color && ` · ${(item as any).color}`}
@@ -319,7 +319,7 @@ export default function OrderPage() {
               ))}
             </div>
 
-            <div className="border-t border-stone-100 pt-4 pb-1">
+            <div className="border-t border-abby-stone pt-4 pb-1">
               {appliedDiscount ? (
                 <div className="flex items-center justify-between text-sm bg-green-50 text-green-700 px-3 py-2 rounded-sm">
                   <span>Code <strong>{appliedDiscount.code}</strong> applied</span>
@@ -342,13 +342,13 @@ export default function OrderPage() {
               )}
             </div>
 
-            <div className="border-t border-stone-100 pt-4 space-y-2 text-sm">
-              <div className="flex justify-between text-stone-500"><span>Subtotal</span><span>{formatPrice(subtotal)}</span></div>
-              <div className="flex justify-between text-stone-500"><span>Shipping</span><span>{shipping === 0 ? "Free" : formatPrice(shipping)}</span></div>
+            <div className="border-t border-abby-stone pt-4 space-y-2 text-sm">
+              <div className="flex justify-between text-abby-black/50"><span>Subtotal</span><span>{formatPrice(subtotal)}</span></div>
+              <div className="flex justify-between text-abby-black/50"><span>Shipping</span><span>{shipping === 0 ? "Free" : formatPrice(shipping)}</span></div>
               {appliedDiscount && (
                 <div className="flex justify-between text-green-600"><span>Discount</span><span>-{formatPrice(discountAmount)}</span></div>
               )}
-              <div className="flex justify-between font-medium text-stone-900 text-base pt-2"><span>Total</span><span>{formatPrice(total)}</span></div>
+              <div className="flex justify-between font-medium text-abby-black text-base pt-2"><span>Total</span><span>{formatPrice(total)}</span></div>
             </div>
           </div>
         </div>

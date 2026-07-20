@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { useSearchParams } from "next/navigation";
-import { Search, SlidersHorizontal, X } from "lucide-react";
+import { Search, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { ProductCard } from "@/components/ProductCard";
@@ -48,27 +48,27 @@ export default function ShopPage() {
   });
 
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-      <div className="mb-10">
-        <span className="text-xs tracking-[0.3em] uppercase text-stone-400 block mb-3">Browse</span>
-        <h1 className="font-serif text-3xl sm:text-4xl font-medium text-stone-900">Shop</h1>
+    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 bg-abby-cream">
+      <div className="mb-12">
+        <span className="text-xs tracking-[0.3em] uppercase text-abby-black/40 block mb-3">Browse</span>
+        <h1 className="font-serif text-4xl sm:text-5xl font-medium text-abby-black">The Collections</h1>
       </div>
 
-      <div className="flex flex-col sm:flex-row gap-4 mb-8">
+      <div className="flex flex-col sm:flex-row gap-4 mb-10 pb-8 border-b border-abby-stone">
         <div className="relative flex-1">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-stone-400" />
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-abby-black/30" />
           <Input
             placeholder="Search products..."
             value={search}
             onChange={(e) => { setSearch(e.target.value); setPage(1); }}
-            className="rounded-none pl-10 h-10 border-stone-200"
+            className="rounded-none pl-10 h-11 border-abby-stone bg-white"
           />
         </div>
-        <div className="flex gap-2">
+        <div className="flex gap-2 flex-wrap">
           <select
             value={sort}
             onChange={(e) => setSort(e.target.value)}
-            className="h-10 px-4 bg-white border border-stone-200 rounded-none text-sm focus:outline-none"
+            className="h-11 px-4 bg-white border border-abby-stone rounded-none text-sm focus:outline-none uppercase tracking-wide text-abby-black"
           >
             <option value="newest">Newest</option>
             <option value="price-asc">Price: Low to High</option>
@@ -77,53 +77,57 @@ export default function ShopPage() {
           </select>
           <div className="flex gap-2">
             {categories.map((c) => (
-              <Button
+              <button
                 key={c}
-                variant={category === c ? "default" : "outline"}
-                size="sm"
-                className="rounded-none text-xs h-10"
                 onClick={() => { setCategory(category === c ? null : c); setPage(1); }}
+                className={`h-11 px-4 text-xs uppercase tracking-wide border transition-colors flex items-center gap-1.5 ${
+                  category === c
+                    ? "bg-abby-black text-abby-off-white border-abby-black"
+                    : "bg-white text-abby-black border-abby-stone hover:border-abby-black"
+                }`}
               >
                 {c}
-                {category === c && <X className="ml-1 h-3 w-3" />}
-              </Button>
+                {category === c && <X className="h-3 w-3" />}
+              </button>
             ))}
           </div>
         </div>
       </div>
 
       {loading ? (
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
           {Array.from({ length: 8 }).map((_, i) => (
             <div key={i} className="animate-pulse">
-              <div className="aspect-[3/4] bg-stone-100 rounded-sm mb-3" />
-              <div className="h-4 bg-stone-100 rounded w-3/4 mb-2" />
-              <div className="h-3 bg-stone-100 rounded w-1/3" />
+              <div className="aspect-[3/4] bg-abby-stone mb-3" />
+              <div className="h-4 bg-abby-stone rounded w-3/4 mb-2" />
+              <div className="h-3 bg-abby-stone rounded w-1/3" />
             </div>
           ))}
         </div>
       ) : sortedProducts.length === 0 ? (
         <div className="text-center py-20">
-          <p className="text-stone-400">No products found</p>
+          <p className="text-abby-black/40 font-serif text-lg">No products found</p>
         </div>
       ) : (
         <>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
             {sortedProducts.map((p) => (
               <ProductCard key={p.id} product={p} />
             ))}
           </div>
-          <div className="flex justify-center gap-2 mt-12">
+          <div className="flex justify-center gap-2 mt-16">
             {Array.from({ length: Math.ceil(total / limit) }).map((_, i) => (
-              <Button
+              <button
                 key={i}
-                variant={page === i + 1 ? "default" : "outline"}
-                size="sm"
-                className="rounded-none h-8 w-8 p-0"
                 onClick={() => setPage(i + 1)}
+                className={`h-9 w-9 text-sm border transition-colors ${
+                  page === i + 1
+                    ? "bg-abby-black text-abby-off-white border-abby-black"
+                    : "bg-white text-abby-black border-abby-stone hover:border-abby-black"
+                }`}
               >
                 {i + 1}
-              </Button>
+              </button>
             ))}
           </div>
         </>

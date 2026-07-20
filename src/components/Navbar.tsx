@@ -121,13 +121,16 @@ export function Navbar() {
             )}
           </div>
 
-          {/* Mobile toggle */}
-          <button
-            onClick={() => setMobileOpen(!mobileOpen)}
-            className="md:hidden text-abby-black"
-          >
-            {mobileOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
-          </button>
+          {/* Mobile: bell + toggle */}
+          <div className="md:hidden flex items-center gap-4">
+            <NotificationBell />
+            <button
+              onClick={() => setMobileOpen(!mobileOpen)}
+              className="text-abby-black"
+            >
+              {mobileOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
+            </button>
+          </div>
         </div>
       </div>
 
