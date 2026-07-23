@@ -25,8 +25,8 @@ export default function OrderPage() {
   const [placed, setPlaced] = useState(false);
   const [shippingRate, setShippingRate] = useState(15);
   const [freeShippingThreshold, setFreeShippingThreshold] = useState(200);
-  const [paymentMethod] = useState<"mpesa">("mpesa");
-  const [mpesaPhone, setMpesaPhone] = useState("");
+  const [paymentMethod] = useState<"bank">("bank");
+  const [bankPhone, setBankPhone] = useState("");
   const [discountCodeInput, setDiscountCodeInput] = useState("");
   const [appliedDiscount, setAppliedDiscount] = useState<{ code: string; discountAmount: number } | null>(null);
   const [applyingDiscount, setApplyingDiscount] = useState(false);
@@ -103,8 +103,8 @@ export default function OrderPage() {
       toast.error("Please fill in your contact and shipping details first.");
       return;
     }
-    if (paymentMethod === "mpesa" && !mpesaPhone.trim()) {
-      toast.error("Please enter the M-Pesa phone number to pay from.");
+    if (!bankPhone.trim()) {
+      toast.error("Please enter the phone number to receive the bank payment prompt on.");
       return;
     }
 
@@ -113,7 +113,7 @@ export default function OrderPage() {
       const payload = {
         shippingAddress: `${form.address}, ${form.city}, ${form.country} ${form.postalCode}${form.phone ? ` — Phone: ${form.phone}` : ""}`,
         paymentMethod,
-        mpesaPhone: paymentMethod === "mpesa" ? mpesaPhone : undefined,
+        bankPhone,
         discountCode: appliedDiscount?.code,
       };
       let res = await fetch("/api/orders", {
@@ -134,17 +134,17 @@ export default function OrderPage() {
         throw new Error(data.error || "Failed to place order");
       }
 
-      if (data.mpesaError) {
-        toast.error(data.mpesaError);
+      if (data.bankError) {
+        toast.error(data.bankError);
       }
 
       const order = data.order || data;
       await refreshCart();
 
-      if (paymentMethod === "mpesa" && !data.mpesaError) {
+      if (!data.bankError) {
         setPlacedOrderId(order.id);
-        setAwaitingMpesa(true);
-        toast.success("Check your phone to complete the M-Pesa payment.");
+        setAwaitingMpesa(true); // reused name — it just means "waiting on a phone prompt"
+        toast.success("Check your phone to approve the bank payment.");
       } else {
         setPlaced(true);
       }
@@ -172,7 +172,7 @@ export default function OrderPage() {
         <Loader2 className="h-10 w-10 animate-spin text-abby-black/40 mx-auto mb-6" />
         <h1 className="font-serif text-2xl font-medium text-abby-black mb-2">Check Your Phone</h1>
         <p className="text-abby-black/50 mb-2">
-          An M-Pesa payment prompt was sent to <strong>{mpesaPhone}</strong>. Enter your M-Pesa PIN to complete the payment.
+          A bank payment prompt was sent to <strong>{bankPhone}</strong>. Approve it on your banking app to complete the payment.
         </p>
         <p className="text-sm text-abby-black/40">This page will update automatically once payment is confirmed.</p>
         {paymentStatus === "failed" && (
@@ -268,16 +268,16 @@ export default function OrderPage() {
           </div>
 
           <div className="border border-abby-stone p-6">
-            <h2 className="font-medium text-abby-black mb-4">Payment — M-Pesa</h2>
+            <h2 className="font-medium text-abby-black mb-4">Payment — Bank</h2>
             <div>
-              <Label className="text-xs text-abby-black/50">M-Pesa Phone Number *</Label>
+              <Label className="text-xs text-abby-black/50">Phone Number for Bank Prompt *</Label>
               <Input
-                value={mpesaPhone}
-                onChange={(e) => setMpesaPhone(e.target.value)}
+                value={bankPhone}
+                onChange={(e) => setBankPhone(e.target.value)}
                 placeholder="07XX XXX XXX"
                 className="rounded-none mt-1 max-w-xs"
               />
-              <p className="text-xs text-abby-black/40 mt-1">You'll get a payment prompt on this number to enter your PIN.</p>
+              <p className="text-xs text-abby-black/40 mt-1">You'll get a prompt on this number to approve the payment.</p>
             </div>
           </div>
 
