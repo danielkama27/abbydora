@@ -41,6 +41,7 @@ async function updateSettings(request: Request) {
       instagramUrl, twitterUrl, facebookUrl,
       tiktokUrl, youtubeUrl, linkedinUrl, pinterestUrl, whatsappNumber,
       heroMediaUrl, heroMediaType, heroPromoText, detailImageUrl,
+      aboutTitle, aboutSubtitle, aboutBody, aboutStats,
     } = body;
 
     await getOrCreateSettings();
@@ -61,6 +62,10 @@ async function updateSettings(request: Request) {
         ...(heroMediaType !== undefined && { heroMediaType: heroMediaType || null }),
         ...(heroPromoText !== undefined && { heroPromoText: heroPromoText || null }),
         ...(detailImageUrl !== undefined && { detailImageUrl: detailImageUrl || null }),
+        ...(aboutTitle !== undefined && { aboutTitle: aboutTitle || null }),
+        ...(aboutSubtitle !== undefined && { aboutSubtitle: aboutSubtitle || null }),
+        ...(aboutBody !== undefined && { aboutBody: aboutBody || null }),
+        ...(aboutStats !== undefined && { aboutStats: aboutStats || null }),
       },
     });
     return NextResponse.json(updated);

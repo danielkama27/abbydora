@@ -15,6 +15,7 @@ import {
   Layers,
   Store,
   Image as ImageIcon,
+  FileText,
   Tag,
   AlertTriangle,
   LogOut,
@@ -52,6 +53,7 @@ const navGroups = [
     label: "Marketing",
     items: [
       { icon: ImageIcon, label: "Homepage Hero", href: "/admin/marketing/hero" },
+      { icon: FileText, label: "About Page", href: "/admin/marketing/about" },
       { icon: Tag, label: "Discount Codes", href: "/admin/marketing/discounts" },
       { icon: Megaphone, label: "Announcements", href: "/admin/announcements" },
       { icon: Mail, label: "Newsletter", href: "/admin/marketing/newsletter" },

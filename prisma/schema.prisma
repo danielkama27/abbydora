@@ -108,6 +108,10 @@ model Settings {
   heroMediaType          String?  // "image" or "video"
   heroPromoText          String?  // e.g. "20% OFF" shown as a badge over the hero
   detailImageUrl         String?  // "The Detail is The Design" section image
+  aboutTitle             String?
+  aboutSubtitle          String?
+  aboutBody              String?  // paragraphs separated by a blank line
+  aboutStats             String?  // JSON array of { label, value }
   updatedAt              DateTime @updatedAt
 }
 
