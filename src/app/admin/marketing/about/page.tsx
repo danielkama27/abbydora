@@ -15,11 +15,7 @@ Every piece in our collection is carefully selected and crafted with attention t
 
 Our approach is rooted in sustainability. We prioritize eco-friendly fabrics, ethical production practices, and designs meant to last. We believe that the best wardrobe is one built on quality, not quantity.`;
 
-const defaultStats: Stat[] = [
-  { label: "Products", value: "500+" },
-  { label: "Happy Customers", value: "10,000+" },
-  { label: "Countries", value: "30+" },
-];
+const defaultStats: Stat[] = [];
 
 export default function AboutMarketingPage() {
   const [title, setTitle] = useState("About AbbyDora");
