@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { checkSession } from "@/lib/session-helpers";
 import { initiateStkPush } from "@/lib/mpesa";
+import { initiateBankPush } from "@/lib/tuma";
 
 // Customer-facing: only ever returns the signed-in user's own orders.
 export async function GET() {
@@ -47,7 +48,7 @@ async function placeOrder(request: Request) {
 
   try {
     const body = await request.json();
-    const { shippingAddress, paymentMethod, mpesaPhone, discountCode } = body;
+    const { shippingAddress, paymentMethod, mpesaPhone, bankPhone, discountCode } = body;
 
     // Always build the order from the user's actual server-side cart —
     // never trust prices/items the client claims, and never trust a
@@ -189,6 +190,26 @@ async function placeOrder(request: Request) {
         console.error("M-Pesa STK push failed:", mpesaErr);
         return NextResponse.json(
           { order, mpesaError: mpesaErr?.message || "Could not start M-Pesa payment. Your order was saved — please contact us to arrange payment." },
+          { status: 201 }
+        );
+      }
+    }
+
+    if (paymentMethod === "bank" && bankPhone) {
+      try {
+        const push = await initiateBankPush({
+          phone: bankPhone,
+          amount: total,
+          description: `AbbyDora order ${order.id.slice(0, 12).toUpperCase()}`,
+        });
+        await prisma.order.update({
+          where: { id: order.id },
+          data: { bankCheckoutRequestId: push.checkoutRequestId },
+        });
+      } catch (bankErr: any) {
+        console.error("Bank payment push failed:", bankErr);
+        return NextResponse.json(
+          { order, bankError: bankErr?.message || "Could not start bank payment. Your order was saved — please contact us to arrange payment." },
           { status: 201 }
         );
       }

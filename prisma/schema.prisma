@@ -158,6 +158,7 @@ model Order {
   mpesaCheckoutRequestId String?
   mpesaReceiptNumber     String?
   mpesaPhone             String?
+  bankCheckoutRequestId  String?  // Tuma payment reference, for "bank" payment method
   guestName              String?     // for POS walk-in sales without an account
   guestPhone             String?
   user                   User?       @relation(fields: [userId], references: [id], onDelete: Cascade)
